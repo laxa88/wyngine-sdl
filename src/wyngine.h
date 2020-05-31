@@ -10,6 +10,7 @@
 #include "random.h"
 #include "font.h"
 #include "audio.h"
+#include "image.h"
 
 void emscriptenLoop(void *arg);
 
