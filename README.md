@@ -11,6 +11,20 @@ Yet another C++ game framework using SDL2. The emphasis of this framework is bin
 - [x] Targets Windows (desktop) via SDL2
 - [x] Targets web (HTML5) via emscripten/SDL2
 
+## Nice to have
+
+- [ ] FPS limit
+- [ ] Per-character bitmap font manipulation
+- [ ] Save data
+- [ ] Network request (GET/POST)
+
+## Demos
+
+- [ ] Audio
+- [ ] Pixel gradient animation
+- [ ] Virtual keyboard
+- [ ] Bunnymark
+
 ## License
 
 Just throwing this here, copy-pasted from [here](https://opensource.org/licenses/MIT).
