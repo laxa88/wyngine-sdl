@@ -1,4 +1,4 @@
-#include "src/game.h"
+#include "src/wyngine.h"
 
 class Game : public Wyngine
 {
