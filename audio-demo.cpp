@@ -2,6 +2,7 @@
 
 class Game : public Wyngine
 {
+    int frame;
     WY_Image *mFontImage;
     WY_MonoFont *mFont;
 
@@ -15,12 +16,14 @@ public:
     {
         loadMedia();
 
-        mFont = new WY_MonoFont(mFontImage->texture, 8, 4, {10, 10, 80, 50});
+        mFont = new WY_MonoFont(mFontImage->texture, 8, 4, {10, 10, 200, 50});
         mFont->setDebug(true);
     }
 
     void onUpdate()
     {
+        frame++;
+
         if (windowEvent.type == SDL_KEYDOWN)
         {
             switch (windowEvent.key.keysym.sym)
@@ -34,7 +37,9 @@ public:
 
     void onRender()
     {
-        mFont->print(mRenderer, "Hello wrapped world!\n\nNew line!");
+        std::string txt1 = "Running : ";
+        std::string txt2 = std::to_string(frame);
+        mFont->print(mRenderer, txt1 + txt2);
     }
 };
 
