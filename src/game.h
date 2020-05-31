@@ -1,6 +1,5 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <stdio.h>
 #include <iterator>
 #include <vector>
 #ifdef __EMSCRIPTEN__
@@ -8,6 +7,9 @@
 #endif
 
 #include "sprite.h"
+#include "random.h"
+#include "font.h"
+#include "audio.h"
 
 void emscriptenLoop(void *arg);
 
@@ -20,6 +22,7 @@ protected:
     int mGamePS; // pixel size
     bool mGameRunning;
 
+    SDL_Event windowEvent;
     SDL_Window *mWindow = NULL;
     SDL_Renderer *mRenderer = NULL;
     SDL_Texture *mTexture = NULL;
@@ -94,6 +97,13 @@ public:
     void update()
     {
         // perform internal physics here
+        if (SDL_PollEvent(&windowEvent) != 0)
+        {
+            if (windowEvent.type == SDL_QUIT)
+            {
+                mGameRunning = false;
+            }
+        }
 
         onUpdate();
     }
