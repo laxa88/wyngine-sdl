@@ -91,6 +91,22 @@ public:
         delete[] & mChars;
     }
 
+    void printm(SDL_Renderer *renderer, const char *texts[], int length)
+    {
+        // https://stackoverflow.com/questions/33523585/how-do-sizeofarr-sizeofarr0-work
+        // array decays to a pointer when passed into function,
+        // so it's impossible to get array length.
+
+        std::string str = "";
+
+        for (int i = 0; i < length; i++)
+        {
+            str += texts[i];
+        }
+
+        print(renderer, str);
+    }
+
     void print(SDL_Renderer *renderer, std::string text)
     {
         if (mTexture == nullptr)
