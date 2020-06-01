@@ -6,6 +6,7 @@
 #include <emscripten.h>
 #endif
 
+#include "timer.h"
 #include "sprite.h"
 #include "random.h"
 #include "font.h"
@@ -28,6 +29,8 @@ protected:
     SDL_Renderer *mRenderer = NULL;
     SDL_Texture *mTexture = NULL;
     std::vector<WY_Sprite *> spritePool;
+
+    WY_Timer *timer;
 
     bool init()
     {
@@ -72,6 +75,7 @@ public:
         mGameW = w;
         mGameH = h;
         mGamePS = ps;
+        timer = new WY_Timer();
 
         if (init())
         {
@@ -97,6 +101,8 @@ public:
 
     void update()
     {
+        timer->update();
+
         // perform internal physics here
         if (SDL_PollEvent(&windowEvent) != 0)
         {
