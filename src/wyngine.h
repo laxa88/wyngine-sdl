@@ -75,7 +75,7 @@ public:
         mGameW = w;
         mGameH = h;
         mGamePS = ps;
-        timer = new WY_Timer();
+        timer = new WY_Timer(60);
 
         if (init())
         {
@@ -87,6 +87,8 @@ public:
 
     ~Wyngine()
     {
+        delete timer;
+
         SDL_DestroyWindow(mWindow);
         mWindow = NULL;
 
@@ -101,7 +103,6 @@ public:
 
     void update()
     {
-        timer->update();
 
         // perform internal physics here
         if (SDL_PollEvent(&windowEvent) != 0)
@@ -146,8 +147,12 @@ public:
 
     void gameLoop()
     {
+        timer->update();
+
         update();
         render();
+
+        timer->delayByFPS();
     }
 
     // Entry point
