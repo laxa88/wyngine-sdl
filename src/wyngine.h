@@ -1,5 +1,4 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <iterator>
 #include <vector>
 #ifdef __EMSCRIPTEN__
@@ -12,6 +11,7 @@
 #include "font.h"
 #include "audio.h"
 #include "image.h"
+#include "keyboard.h"
 
 void emscriptenLoop(void *arg);
 
@@ -31,6 +31,7 @@ protected:
     std::vector<WY_Sprite *> spritePool;
 
     WY_Timer *timer;
+    WY_Keyboard *keyboard;
 
     bool init()
     {
@@ -76,6 +77,7 @@ public:
         mGameH = h;
         mGamePS = ps;
         timer = new WY_Timer(60);
+        keyboard = new WY_Keyboard();
 
         if (init())
         {
@@ -103,13 +105,17 @@ public:
 
     void update()
     {
-
         // perform internal physics here
-        if (SDL_PollEvent(&windowEvent) != 0)
+
+        while (SDL_PollEvent(&windowEvent) != 0)
         {
             if (windowEvent.type == SDL_QUIT)
             {
                 mGameRunning = false;
+            }
+            else if (windowEvent.type == SDL_KEYUP || windowEvent.type == SDL_KEYDOWN)
+            {
+                keyboard->update(&windowEvent);
             }
         }
 
