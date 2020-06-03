@@ -7,22 +7,24 @@ Yet another C++ game framework using SDL2. The emphasis of this framework is bin
 - [x] Loads PNG images
 - [x] Supports mini-ASCII bitmap font
 - [ ] Audio synthesis
-- [ ] Keyboard and touch input
+- [ ] Keyboard input
+- [ ] Mouse/touch input
 - [x] Targets Windows (desktop) via SDL2
 - [x] Targets web (HTML5) via emscripten/SDL2
 
 ## Nice to have
 
-- [ ] FPS limit
+- [x] FPS limit
 - [ ] Per-character bitmap font manipulation
 - [ ] Save data
 - [ ] Network request (GET/POST)
 
 ## Demos
 
+- [x] Timer / FPS
+- [ ] Virtual keyboard
 - [ ] Audio
 - [ ] Pixel gradient animation
-- [ ] Virtual keyboard
 - [ ] Bunnymark
 
 ## License
