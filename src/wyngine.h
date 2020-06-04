@@ -12,6 +12,7 @@
 #include "audio.h"
 #include "image.h"
 #include "keyboard.h"
+#include "io.h"
 
 void emscriptenLoop(void *arg);
 
@@ -32,6 +33,7 @@ protected:
 
     WY_Timer *timer;
     WY_Keyboard *keyboard;
+    WY_IO *io;
 
     bool init()
     {
@@ -76,8 +78,10 @@ public:
         mGameW = w;
         mGameH = h;
         mGamePS = ps;
+
         timer = new WY_Timer(60);
         keyboard = new WY_Keyboard();
+        io = new WY_IO();
 
         if (init())
         {
@@ -113,9 +117,13 @@ public:
             {
                 mGameRunning = false;
             }
-            else if (windowEvent.type == SDL_KEYUP || windowEvent.type == SDL_KEYDOWN)
+            else if (windowEvent.type == SDL_KEYUP ||
+                     windowEvent.type == SDL_KEYDOWN ||
+                     windowEvent.type == SDL_TEXTINPUT ||
+                     windowEvent.type == SDL_TEXTEDITING)
             {
                 keyboard->update(&windowEvent);
+                io->update(&windowEvent);
             }
         }
 

@@ -11,11 +11,12 @@ class Game : public Wyngine
     }
 
 public:
-    Game(const char *title, int w, int h, int ps) : Wyngine(title, w, h, ps)
+    Game() : Wyngine("Wyngine keyboard demo", 256, 224, 3)
     {
         loadMedia();
 
-        mFont = new WY_MonoFont(mFontImage->texture, 8, 4, {10, 10, 200, 50});
+        mFont = new WY_MonoFont(mFontImage->texture, 8, 4, {8, 8, 240, 50});
+        mFont->setDebug(true);
     }
 
     void onUpdate()
@@ -37,13 +38,17 @@ public:
         char txt2 = keyboard->getLastCharPressed();
         std::string txt3 = "\nkeycode     : ";
         std::string txt4 = std::to_string(keyboard->getLastCharPressed());
-        mFont->print(mRenderer, txt1 + txt2 + txt3 + txt4);
+
+        std::string txt5 = "\n\nEntered text: ";
+        std::string txt6 = io->getText();
+
+        mFont->print(mRenderer, txt1 + txt2 + txt3 + txt4 + txt5 + txt6);
     }
 };
 
 int main(int argc, char *args[])
 {
-    Game *game = new Game("Wyngine keyboard demo", 256, 224, 3);
+    Game *game = new Game();
 
     game->run();
 

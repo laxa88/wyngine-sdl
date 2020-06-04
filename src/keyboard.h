@@ -72,23 +72,8 @@ public:
             int keycode = windowEvent->key.keysym.sym;
             SDL_TextInputEvent keytext = windowEvent->text;
 
-            if (isKeyDown(SDL_GetScancodeFromKey(SDLK_LSHIFT)) || isKeyDown(SDL_GetScancodeFromKey(SDLK_RSHIFT)))
-            {
-                if (keycode != SDLK_LSHIFT && keycode != SDLK_RSHIFT)
-                {
-                    // registers non-alphabets too
-                    // charPressed = toupper(keycode);
-
-                    if (keycode >= 97 && keycode <= 122)
-                    {
-                        charPressed = keycode - 32;
-                    }
-                }
-            }
-            else
-            {
-                charPressed = keycode;
-            }
+            // capitalized chars are handled as input-text in WY_IO
+            charPressed = keycode;
         }
     }
 };
