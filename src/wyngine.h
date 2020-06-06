@@ -94,6 +94,8 @@ public:
     ~Wyngine()
     {
         delete timer;
+        delete keyboard;
+        delete io;
 
         SDL_DestroyWindow(mWindow);
         mWindow = NULL;
