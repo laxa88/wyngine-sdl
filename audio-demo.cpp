@@ -22,24 +22,15 @@ public:
 
     void onUpdate()
     {
-        frame++;
-
-        if (windowEvent.type == SDL_KEYDOWN)
-        {
-            switch (windowEvent.key.keysym.sym)
-            {
-            case SDLK_ESCAPE:
-                mGameRunning = false;
-                break;
-            }
-        }
     }
 
     void onRender()
     {
-        std::string txt1 = "Running : ";
-        std::string txt2 = std::to_string(frame);
-        mFont->print(mRenderer, txt1 + txt2);
+        std::string txt1 = "Time elapsed : ";
+        std::string txt2 = std::to_string(timer->getTimeSinceStart());
+        std::string txt3 = "\nFPS          : ";
+        std::string txt4 = std::to_string(timer->getFPS());
+        mFont->print(mRenderer, txt1 + txt2 + txt3 + txt4);
     }
 };
 
