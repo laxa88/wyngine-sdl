@@ -40,7 +40,7 @@ public:
         return dTime2 - dTime1;
     }
 
-    int getCurrFPS()
+    int getFPS()
     {
         if (frames <= 0 || getStartTime() <= 0)
         {
@@ -56,7 +56,7 @@ public:
         return fps;
     }
 
-    int getFPS()
+    int getFPSLimit()
     {
         return fpsLimit;
     }

@@ -43,7 +43,7 @@ public:
         std::string txt5 = "\ndTime : ";
         std::string txt6 = std::to_string(timer->getDeltaTime());
         std::string txt7 = "\nFPS : ";
-        std::string txt8 = std::to_string(timer->getCurrFPS());
+        std::string txt8 = std::to_string(timer->getFPS());
         std::string txt9 = "\n\nPress enter to reset";
         mFont->print(mRenderer, txt1 + txt2 + txt3 + txt4 + txt5 + txt6 + txt7 + txt8 + txt9);
     }
