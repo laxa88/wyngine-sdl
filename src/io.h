@@ -58,9 +58,9 @@ public:
             break;
 
         case SDL_TEXTEDITING:
-            txt.composition = event.edit.text;
-            txt.cursor = event.edit.start;
-            txt.selection_len = event.edit.length;
+            txt.composition = windowEvent->edit.text;
+            txt.cursor = windowEvent->edit.start;
+            txt.selection_len = windowEvent->edit.length;
             break;
         }
     }
