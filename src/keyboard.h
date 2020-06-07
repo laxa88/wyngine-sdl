@@ -19,23 +19,27 @@ public:
         memcpy(currKeystate, SDL_GetKeyboardState(NULL), sizeof(Uint8) * SDL_NUM_SCANCODES);
     }
 
-    bool isKeyPressed(const SDL_Scancode code)
+    bool isKeyPressed(const SDL_Keycode keycode)
     {
+        SDL_Scancode code = SDL_GetScancodeFromKey(keycode);
         return (prevKeystate[code] == 0 && currKeystate[code] == 1);
     }
 
-    bool isKeyReleased(const SDL_Scancode code)
+    bool isKeyReleased(const SDL_Keycode keycode)
     {
+        SDL_Scancode code = SDL_GetScancodeFromKey(keycode);
         return (prevKeystate[code] == 1 && currKeystate[code] == 0);
     }
 
-    bool isKeyDown(const SDL_Scancode code)
+    bool isKeyDown(const SDL_Keycode keycode)
     {
+        SDL_Scancode code = SDL_GetScancodeFromKey(keycode);
         return (currKeystate[code] == 1);
     }
 
-    bool isKeyUp(const SDL_Scancode code)
+    bool isKeyUp(const SDL_Keycode keycode)
     {
+        SDL_Scancode code = SDL_GetScancodeFromKey(keycode);
         return (currKeystate[code] == 0);
     }
 

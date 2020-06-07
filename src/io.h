@@ -26,8 +26,12 @@ public:
         return txt.cursor;
     }
 
-    void update(SDL_Event *windowEvent)
+    void update(SDL_Event *windowEvent, int hasEvent)
     {
+        if (hasEvent == 0)
+        {
+            return;
+        }
 
         int keycode = windowEvent->key.keysym.sym;
         int type = windowEvent->type;

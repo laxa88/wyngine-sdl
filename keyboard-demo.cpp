@@ -34,15 +34,24 @@ public:
 
     void onRender()
     {
-        std::string txt1 = "char pressed: ";
-        char txt2 = keyboard->getLastCharPressed();
-        std::string txt3 = "\nkeycode     : ";
-        std::string txt4 = std::to_string(keyboard->getLastCharPressed());
+        std::string t1 = "char pressed: ";
+        char t2 = keyboard->getLastCharPressed();
+        std::string t3 = "\nkeycode     : ";
+        std::string t4 = std::to_string(keyboard->getLastCharPressed());
 
-        std::string txt5 = "\n\nEntered text: ";
-        std::string txt6 = io->getText();
+        std::string t5 = "\n\nEntered text: ";
+        std::string t6 = io->getText();
 
-        mFont->print(mRenderer, txt1 + txt2 + txt3 + txt4 + txt5 + txt6);
+        std::string t7 = "\n\n5 pressed?  : ";
+        std::string t8 = std::to_string(keyboard->isKeyPressed(SDLK_5));
+        std::string t9 = "\n5 release?  : ";
+        std::string t10 = std::to_string(keyboard->isKeyReleased(SDLK_5));
+        std::string t11 = "\n5 up?        : ";
+        std::string t12 = std::to_string(keyboard->isKeyUp(SDLK_5));
+        std::string t13 = "\n5 down?     : ";
+        std::string t14 = std::to_string(keyboard->isKeyDown(SDLK_5));
+
+        mFont->print(mRenderer, t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12 + t13 + t14);
     }
 };
 

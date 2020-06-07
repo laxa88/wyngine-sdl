@@ -113,21 +113,17 @@ public:
     {
         // perform internal physics here
 
-        while (SDL_PollEvent(&windowEvent) != 0)
+        int hasEvent = SDL_PollEvent(&windowEvent) != 0;
+        if (hasEvent)
         {
             if (windowEvent.type == SDL_QUIT)
             {
                 mGameRunning = false;
             }
-            else if (windowEvent.type == SDL_KEYUP ||
-                     windowEvent.type == SDL_KEYDOWN ||
-                     windowEvent.type == SDL_TEXTINPUT ||
-                     windowEvent.type == SDL_TEXTEDITING)
-            {
-                keyboard->update(&windowEvent);
-                io->update(&windowEvent);
-            }
         }
+
+        keyboard->update(&windowEvent);
+        io->update(&windowEvent, hasEvent);
 
         onUpdate();
     }
