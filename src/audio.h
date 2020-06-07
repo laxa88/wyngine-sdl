@@ -14,6 +14,24 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 
+#define BASE_FREQ_A0 27.50f
+
+enum WY_AudioNote
+{
+    NOTE_A,
+    NOTE_AS,
+    NOTE_B,
+    NOTE_C,
+    NOTE_CS,
+    NOTE_D,
+    NOTE_DS,
+    NOTE_E,
+    NOTE_F,
+    NOTE_FS,
+    NOTE_G,
+    NOTE_GS,
+};
+
 void audioCallback(void *userData, Uint8 *stream, int streamLen);
 
 class WY_Audio
@@ -37,6 +55,10 @@ public:
 
     // Volume. 0 = silence, 1000 = max
     int mAmplitude;
+
+    WY_AudioNote mNote = NOTE_A;
+    int mOctave = 4;
+    float mPlaying = 0.f;
 
     /**
      * Determines sampleSize format (range). Larger types = larger sample range.
@@ -86,6 +108,43 @@ public:
         delete &haveSpec;
     }
 
+    // Returns note in frequency
+    double getNote()
+    {
+        double d12thRootOf2 = pow(2.0, 1.0 / 12);
+        double octave = pow(2.0, mOctave);
+        double res = BASE_FREQ_A0 * pow(d12thRootOf2, mNote) * (double)octave;
+
+        return res;
+    }
+
+    void increaseOctave()
+    {
+        if (++mOctave > 7)
+        {
+            mOctave = 7;
+        }
+    }
+
+    void decreaseOctave()
+    {
+        if (--mOctave < 1)
+        {
+            mOctave = 1;
+        }
+    }
+
+    void speak(WY_AudioNote note)
+    {
+        mNote = note;
+        mPlaying = 1.f;
+    }
+
+    void silence()
+    {
+        mPlaying = 0.f;
+    }
+
     void play()
     {
         SDL_PauseAudioDevice(deviceId, 0);
@@ -99,9 +158,10 @@ public:
     // Overwrite this to create your own audio sample.
     // Do not printf here as it will be very slow;
     // It runs at a high frequency, e.g. ~44100 per frame
-    virtual Sint16 getAudioSample(double time)
+    // Expects a return value between -1 to 1.
+    virtual double getAudioSample(double time)
     {
-        return mAmplitude * std::sin(2.0f * M_PI * time * 440.0f); // A4
+        return std::sin(2.0f * M_PI * time * mNote);
     }
 
     virtual void updateAudio(Uint8 *stream, int streamLen)
@@ -124,17 +184,13 @@ public:
         for (int i = 0; i < bufferLength; i++)
         {
             double samplePos = (double)mSampleIndex / (double)mSampleRate;
-            buffer[i] = getAudioSample(samplePos);
+            buffer[i] = mPlaying * mAmplitude * (double)getAudioSample(samplePos);
 
             mSampleIndex++;
-            mSampleIndex %= mSampleRate;
+            // mSampleIndex %= mSampleRate;
         }
     }
 };
-
-const int AMPLITUDE = 28000;
-const int SAMPLE_RATE = 44100;
-int sample_nr = 0;
 
 void audioCallback(void *user_data, Uint8 *raw_buffer, int bytes)
 {
