@@ -34,6 +34,7 @@ protected:
     WY_Timer *timer;
     WY_Keyboard *keyboard;
     WY_IO *io;
+    WY_Audio *audio;
 
     bool init()
     {
@@ -82,6 +83,7 @@ public:
         timer = new WY_Timer(60);
         keyboard = new WY_Keyboard();
         io = new WY_IO();
+        audio = new WY_Audio();
 
         if (init())
         {
@@ -96,6 +98,7 @@ public:
         delete timer;
         delete keyboard;
         delete io;
+        delete audio;
 
         SDL_DestroyWindow(mWindow);
         mWindow = NULL;
@@ -124,6 +127,7 @@ public:
 
         keyboard->update(&windowEvent);
         io->update(&windowEvent, hasEvent);
+        audio->update(timer->getDeltaTime());
 
         onUpdate();
     }
