@@ -3,6 +3,12 @@
 // Audio programming theory
 // https://www.youtube.com/watch?v=GjmcXfgKq78
 
+// Music note frequencies
+// https://pages.mtu.edu/~suits/notefreqs.html
+
+// NES audio channels
+// https://www.youtube.com/watch?v=la3coK5pq5w
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,12 +24,30 @@ public:
     SDL_AudioSpec wantSpec;
     SDL_AudioSpec haveSpec;
 
-    int sampleRate = 44100; // number of samples per second
-    int sampleSize = 1024;  // accuracy of each sample
-    int amplitude = 28000;  // volume
-    int dTime = 0;          // deltaTime in milliseconds
+    // Frequency, a.k.a. number of samples per second. Higher value = higher accuracy
+    int mSampleRate;
+    // Current sample position (audio dTime)
+    int mSampleIndex = 0;
 
-    WY_Audio()
+    // Buffer size for samples. More samples = better accuracy, but slower performance.
+    int mSampleSize;
+
+    // Number of channels, e.g. mono = 1, stereo = 2, etc.
+    int mChannels;
+
+    // Volume. 0 = silence, 1000 = max
+    int mAmplitude;
+
+    /**
+     * Determines sampleSize format (range). Larger types = larger sample range.
+     * If the format is too large, you may end up hearing nothing because the
+     * buffer data's values are all too low to be audible. The inverse is also true.
+     *
+     * i.e.: Lower format gives off a DOS-like sound, higher format is smoother and modern.
+    */
+    SDL_AudioFormat audioFormat = AUDIO_S16;
+
+    WY_Audio(unsigned int sampleRate = 44100, unsigned int sampleSize = 1024, unsigned int channels = 1, unsigned int amplitude = 500)
     {
         SDL_Init(SDL_INIT_AUDIO);
 
@@ -31,8 +55,8 @@ public:
         SDL_zero(haveSpec);
 
         wantSpec.freq = sampleRate;
-        wantSpec.format = AUDIO_S16SYS;
-        wantSpec.channels = 1;
+        wantSpec.format = audioFormat;
+        wantSpec.channels = channels;
         wantSpec.samples = sampleSize;
         wantSpec.callback = audioCallback;
         wantSpec.userdata = this;
@@ -46,8 +70,12 @@ public:
         if (wantSpec.format != haveSpec.format)
             printf("\nFailed to get the desired AudioSpec");
 
-        sampleRate = haveSpec.freq;
-        sampleSize = haveSpec.size / 4;
+        mSampleRate = haveSpec.freq;
+        mSampleSize = haveSpec.size / 4;
+        mChannels = channels;
+        mAmplitude = amplitude;
+
+        play();
     }
 
     ~WY_Audio()
@@ -68,43 +96,36 @@ public:
         SDL_PauseAudioDevice(deviceId, 1);
     }
 
-    int sample_nr2 = 0;
+    virtual Sint16 getAudioSample(double time)
+    {
+        return mAmplitude * std::sin(2.0f * M_PI * time * 440.0f); // A4
+    }
 
     virtual void updateAudio(Uint8 *stream, int streamLen)
     {
-        // TODO
-        // - use dTime instead of sample_nr2
-        // - move onUpdateAudio to inside the buffer loop, pass in dTime, allow custom waves
-        // - add 4 channels ala NES
-
-        // Sint16 *buffer = (Sint16 *)raw_buffer;
-        // int length = bytes / 2; // 2 bytes per sample for AUDIO_S16SYS
-        // printf("\nsample: %d", sample_nr);
-        // printf("\nsample: %d, %d", sample_nr2, streamLen);
-
-        // for (int i = 0; i < length; i++, sample_nr++)
-        // {
-        //     double time = (double)sample_nr / (double)SAMPLE_RATE;
-        //     buffer[i] = (Sint16)(AMPLITUDE * sin(2.0f * M_PI * 441.0f * time)); // render 441 HZ sine wave
-        // }
+        // printf("\nsample: %d, %d", mSampleIndex, streamLen);
 
         Sint16 *buffer = (Sint16 *)stream;
-        int length = streamLen / 2; // 2 bytes per sample for AUDIO_S16SYS
 
-        // int dTime = dTime / sampleRate;
-        // double waveFunc = sin(2.0f * M_PI * 441.0f);
+        /**
+         * stream length is (sampleSize * channels * byte format).
+         *
+         * e.g.
+         * sampleSize = 1024
+         * channels = 2
+         * audioFormat = AUDIO_S16
+         * streamLen = 1024 * 2 * 2 (S16 = 2 bytes) = 4096
+         */
+        int bufferLength = streamLen / 2; // 2 bytes per sample for AUDIO_S16SYS
 
-        for (int i = 0; i < length; i++, sample_nr2++)
+        for (int i = 0; i < bufferLength; i++)
         {
-            double samplePos = (double)sample_nr2 / (double)sampleRate;
-            buffer[i] = amplitude * std::sin(2.0f * M_PI * samplePos * 441.0f);
-            // buffer[i] = (Sint16)(amplitude * sin(2.0f * M_PI * 441.0f * time));
-        }
-    }
+            double samplePos = (double)mSampleIndex / (double)mSampleRate;
+            buffer[i] = getAudioSample(samplePos);
 
-    void update(int dt)
-    {
-        dTime += dt;
+            mSampleIndex++;
+            mSampleIndex %= mSampleRate;
+        }
     }
 };
 

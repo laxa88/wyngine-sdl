@@ -127,7 +127,6 @@ public:
 
         keyboard->update(&windowEvent);
         io->update(&windowEvent, hasEvent);
-        audio->update(timer->getDeltaTime());
 
         onUpdate();
     }
