@@ -166,6 +166,9 @@ public:
 
     virtual void updateAudio(Uint8 *stream, int streamLen)
     {
+        // TODO: probably need to move this into update loops
+        // to fix stutters in web build
+
         // printf("\nsample: %d, %d", mSampleIndex, streamLen);
 
         Sint16 *buffer = (Sint16 *)stream;
