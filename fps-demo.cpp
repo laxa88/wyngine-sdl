@@ -1,4 +1,5 @@
 #include "src/wyngine.h"
+#include "src/font.h"
 
 class Game : public Wyngine
 {

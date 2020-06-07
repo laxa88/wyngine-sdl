@@ -96,6 +96,9 @@ public:
         SDL_PauseAudioDevice(deviceId, 1);
     }
 
+    // Overwrite this to create your own audio sample.
+    // Do not printf here as it will be very slow;
+    // It runs at a high frequency, e.g. ~44100 per frame
     virtual Sint16 getAudioSample(double time)
     {
         return mAmplitude * std::sin(2.0f * M_PI * time * 440.0f); // A4

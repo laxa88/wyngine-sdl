@@ -1,4 +1,5 @@
 #include "src/wyngine.h"
+#include "src/font.h"
 
 class Game : public Wyngine
 {
@@ -46,7 +47,7 @@ public:
         std::string t8 = std::to_string(keyboard->isKeyPressed(SDLK_5));
         std::string t9 = "\n5 release?  : ";
         std::string t10 = std::to_string(keyboard->isKeyReleased(SDLK_5));
-        std::string t11 = "\n5 up?        : ";
+        std::string t11 = "\n5 up?       : ";
         std::string t12 = std::to_string(keyboard->isKeyUp(SDLK_5));
         std::string t13 = "\n5 down?     : ";
         std::string t14 = std::to_string(keyboard->isKeyDown(SDLK_5));

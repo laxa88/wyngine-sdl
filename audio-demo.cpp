@@ -1,10 +1,24 @@
 #include "src/wyngine.h"
+#include "src/font.h"
+#include "src/audio.h"
+
+class GameAudio : public WY_Audio
+{
+public:
+    GameAudio() : WY_Audio(44100, 1024, 1, 0) {}
+
+    Sint16 getAudioSample(double time)
+    {
+        return mAmplitude * std::sin(2.0f * M_PI * time * 440.0f); // A4
+    }
+};
 
 class Game : public Wyngine
 {
     int frame;
     WY_Image *mFontImage;
     WY_MonoFont *mFont;
+    GameAudio *audio;
 
     void loadMedia()
     {
@@ -18,6 +32,18 @@ public:
 
         mFont = new WY_MonoFont(mFontImage->texture, 8, 4, {8, 8, 240, 208});
         mFont->setDebug(true);
+
+        audio = new GameAudio();
+    }
+
+    ~Game()
+    {
+        SDL_DestroyTexture(mFontImage->texture);
+        delete mFontImage;
+
+        delete mFont;
+
+        delete audio;
     }
 
     void onUpdate()
@@ -45,6 +71,15 @@ public:
         else if (keyboard->isKeyPressed(SDLK_d))
         {
             audio->mAmplitude -= 100;
+        }
+
+        if (keyboard->isKeyPressed(SDLK_z))
+        {
+            audio->mAmplitude = 500;
+        }
+        else if (keyboard->isKeyReleased(SDLK_z))
+        {
+            audio->mAmplitude = 0;
         }
     }
 

@@ -8,8 +8,6 @@
 #include "timer.h"
 #include "sprite.h"
 #include "random.h"
-#include "font.h"
-#include "audio.h"
 #include "image.h"
 #include "keyboard.h"
 #include "io.h"
@@ -34,7 +32,6 @@ protected:
     WY_Timer *timer;
     WY_Keyboard *keyboard;
     WY_IO *io;
-    WY_Audio *audio;
 
     bool init()
     {
@@ -83,7 +80,6 @@ public:
         timer = new WY_Timer(60);
         keyboard = new WY_Keyboard();
         io = new WY_IO();
-        audio = new WY_Audio();
 
         if (init())
         {
@@ -98,7 +94,6 @@ public:
         delete timer;
         delete keyboard;
         delete io;
-        delete audio;
 
         SDL_DestroyWindow(mWindow);
         mWindow = NULL;
