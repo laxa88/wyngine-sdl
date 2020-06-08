@@ -11,7 +11,7 @@ v1.0
 - [x] Loads PNG images
 - [x] Supports mini-ASCII bitmap font
 - [ ] Audio synthesis
-- [ ] Keyboard input
+- [x] Keyboard input
 - [ ] Mouse/touch input
 - [x] Targets Windows (desktop) via SDL2
 - [x] Targets web (HTML5) via emscripten/SDL2
@@ -33,7 +33,7 @@ v2.0
 ## Demos
 
 - [x] Timer / FPS
-- [ ] Virtual keyboard
+- [x] Virtual keyboard
 - [ ] Audio
 - [ ] Pixel gradient animation
 - [ ] Bunnymark
