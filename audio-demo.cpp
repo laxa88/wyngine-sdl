@@ -195,21 +195,23 @@ public:
 
     void onRender()
     {
-        std::string t1 = "Time elapsed       : ";
+        std::string t1 = "Time elapsed        : ";
         std::string t2 = std::to_string(timer->getTimeSinceStart());
-        std::string t3 = "\nSample rate (freq) : ";
+        std::string t3 = "\nSample rate (freq)  : ";
         std::string t4 = std::to_string(audio->mSampleRate);
-        std::string t5 = "\nSample size        : ";
+        std::string t5 = "\nSample size         : ";
         std::string t6 = std::to_string(audio->mSampleSize);
-        std::string t7 = "\nAmplitude (volume) : ";
+        std::string t7 = "\nAmplitude (volume)  : ";
         std::string t8 = std::to_string(audio->mAmplitude);
+        std::string t9 = "\nChannels (speakers) : ";
+        std::string t10 = std::to_string(audio->mChannels);
 
-        std::string t9 = "\n\nInstrument : ";
-        std::string t10 = audio->getInstrumentName();
-        std::string t11 = "\nOctave     : ";
-        std::string t12 = std::to_string(audio->mOctave);
+        std::string s1 = "\n\nInstrument : ";
+        std::string s2 = audio->getInstrumentName();
+        std::string s3 = "\nOctave     : ";
+        std::string s4 = std::to_string(audio->mOctave);
 
-        mFont->print(mRenderer, t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + t11 + t12);
+        mFont->print(mRenderer, t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + s1 + s2 + s3 + s4);
     }
 };
 

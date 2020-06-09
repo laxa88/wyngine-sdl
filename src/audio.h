@@ -69,7 +69,7 @@ public:
     */
     SDL_AudioFormat audioFormat = AUDIO_S16;
 
-    WY_Audio(unsigned int sampleRate = 44100, unsigned int sampleSize = 1024, unsigned int channels = 1, unsigned int amplitude = 500)
+    WY_Audio(unsigned int sampleRate = 44100, unsigned int sampleSize = 1024, unsigned int channels = 2, unsigned int amplitude = 500)
     {
         SDL_Init(SDL_INIT_AUDIO);
 
@@ -93,8 +93,8 @@ public:
             printf("\nFailed to get the desired AudioSpec");
 
         mSampleRate = haveSpec.freq;
-        mSampleSize = haveSpec.size / 4;
-        mChannels = channels;
+        mSampleSize = haveSpec.size / haveSpec.channels;
+        mChannels = haveSpec.channels;
         mAmplitude = amplitude;
 
         play();
