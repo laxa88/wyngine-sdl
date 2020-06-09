@@ -162,7 +162,12 @@ public:
         update();
         render();
 
+#ifdef __EMSCRIPTEN__
+        // FPS capping already handled by emscripten_set_main_loop_arg.
+        // Calling delayByFPS here will introduce stutter/latency in audio.
+#else
         timer->delayByFPS();
+#endif
     }
 
     // Entry point
