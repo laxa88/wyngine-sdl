@@ -7,7 +7,7 @@ class GameAudio : public WY_Audio
     int mInstrument = 1;
 
 public:
-    GameAudio() : WY_Audio(44100, 1024, 1, 500) {}
+    GameAudio() : WY_Audio(44100, 1024, 1, 1000) {}
 
     void setInstrument(int instrument)
     {
@@ -90,22 +90,22 @@ public:
     {
         // audio settings
 
-        if (keyboard->isKeyDown(SDLK_q))
+        if (keyboard->isKeyPressed(SDLK_q))
         {
-            audio->mSampleRate += 10;
+            audio->mSampleRate += 1000;
         }
-        else if (keyboard->isKeyDown(SDLK_a))
+        else if (keyboard->isKeyPressed(SDLK_a))
         {
-            audio->mSampleRate -= 10;
+            audio->mSampleRate -= 1000;
         }
-        else if (keyboard->isKeyPressed(SDLK_w))
-        {
-            audio->mSampleSize *= 2;
-        }
-        else if (keyboard->isKeyPressed(SDLK_s))
-        {
-            audio->mSampleSize /= 2;
-        }
+        // else if (keyboard->isKeyPressed(SDLK_w))
+        // {
+        //     audio->mSampleSize *= 2;
+        // }
+        // else if (keyboard->isKeyPressed(SDLK_s))
+        // {
+        //     audio->mSampleSize /= 2;
+        // }
         else if (keyboard->isKeyPressed(SDLK_e))
         {
             audio->mAmplitude += 100;
