@@ -22,6 +22,10 @@ public:
             return "sine wave";
         case 2:
             return "square wave";
+        case 3:
+            return "triangle wave";
+        case 4:
+            return "saw wave";
         default:
             return "unknown";
         }
@@ -45,6 +49,16 @@ public:
             {
                 return -1.0;
             }
+        }
+
+        case 3:
+        {
+            return asin(sin(2.0f * M_PI * time * getNote())) * 2.0 / M_PI;
+        }
+
+        case 4:
+        {
+            return (2.0 * M_PI) * (getNote() * M_PI * fmod(time, 1.0 / getNote()) - (M_PI / 2.0));
         }
 
         default:
@@ -124,6 +138,14 @@ public:
         else if (keyboard->isKeyPressed(SDLK_2))
         {
             audio->setInstrument(2);
+        }
+        else if (keyboard->isKeyPressed(SDLK_3))
+        {
+            audio->setInstrument(3);
+        }
+        else if (keyboard->isKeyPressed(SDLK_4))
+        {
+            audio->setInstrument(4);
         }
 
         // music octave
