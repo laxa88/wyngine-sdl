@@ -16,6 +16,78 @@
 
 #define BASE_FREQ_A0 27.50f
 
+enum WY_OscillatorType
+{
+    OSC_SINE,
+    OSC_SQUARE,
+    OSC_TRIANGLE,
+    OSC_SAW,
+    OSC_NOISE,
+    OSC_UNKNOWN
+};
+
+class WY_Oscillator
+{
+public:
+    static std::string getOscillatorTypeName(WY_OscillatorType nType)
+    {
+        switch (nType)
+        {
+        case OSC_SINE:
+            return "sine wave";
+        case OSC_SQUARE:
+            return "square wave";
+        case OSC_TRIANGLE:
+            return "triangle wave";
+        case OSC_SAW:
+            return "saw wave";
+        case OSC_NOISE:
+            return "noise";
+        default:
+            return "unknown";
+        }
+    }
+
+    static double oscillate(double dFreq, double dTime, WY_OscillatorType nType)
+    {
+        switch (nType)
+        {
+        case OSC_SINE:
+            return sin(2.0f * M_PI * dTime * dFreq);
+
+        case OSC_SQUARE:
+        {
+            double output = sin(2.0f * M_PI * dTime * dFreq);
+            if (output > 0.0)
+            {
+                return 1.0;
+            }
+            else
+            {
+                return -1.0;
+            }
+        }
+
+        case OSC_TRIANGLE:
+        {
+            return asin(sin(2.0f * M_PI * dTime * dFreq)) * 2.0 / M_PI;
+        }
+
+        case OSC_SAW:
+        {
+            return (2.0 * M_PI) * (dFreq * M_PI * fmod(dTime, 1.0 / dFreq) - (M_PI / 2.0));
+        }
+
+        case OSC_NOISE:
+            // TODO
+            return 0;
+
+        default:
+            return 0;
+        }
+    }
+};
+
 enum WY_AudioNote
 {
     NOTE_A,
