@@ -1,5 +1,8 @@
 // https://codereview.stackexchange.com/questions/41086/play-some-sine-waves-with-sdl2
 
+// Oscillators and Envelopes
+// https://www.youtube.com/watch?v=OSCzKOqtgcA
+
 // Audio programming theory
 // https://www.youtube.com/watch?v=GjmcXfgKq78
 
@@ -15,6 +18,84 @@
 #include <SDL2/SDL.h>
 
 #define BASE_FREQ_A0 27.50f
+#define ALMOST_SILENT 0.001
+
+struct WY_Envelope
+{
+    double dAttackTime;
+    double dDecayTime;
+    double dStartAmplitude;
+    double dSustainAmplitude;
+    double dReleaseTime;
+
+    double dTriggerOnTime;
+    double dTriggerOffTime;
+    bool bNoteOn;
+
+    WY_Envelope()
+    {
+        dAttackTime = 0.01;
+        dDecayTime = 0.01;
+        dStartAmplitude = 1.0;
+        dSustainAmplitude = 0.8;
+        dReleaseTime = 0.02;
+
+        dTriggerOnTime = 0.0;
+        dTriggerOffTime = 0.0;
+        bNoteOn = false;
+    }
+
+    double getAmplitude()
+    {
+        double dTime = SDL_GetTicks();
+        double dAmplitude = 0.0;
+
+        if (bNoteOn)
+        {
+            double dLifeTime = dTime - dTriggerOnTime;
+
+            if (dLifeTime <= dAttackTime)
+            {
+                // Attack
+                dAmplitude = (dLifeTime / dAttackTime) * dStartAmplitude;
+            }
+            else if (dLifeTime <= (dAttackTime + dDecayTime))
+            {
+                // Decay
+                dAmplitude = dStartAmplitude - ((dLifeTime - dAttackTime) / dDecayTime) * (dStartAmplitude - dSustainAmplitude);
+            }
+            else
+            {
+                // Sustain
+                dAmplitude = dSustainAmplitude;
+            }
+        }
+        else
+        {
+            // Release
+            dAmplitude = dSustainAmplitude - (((dTime - dTriggerOffTime) / dReleaseTime) * dSustainAmplitude);
+        }
+
+        if (dAmplitude < ALMOST_SILENT)
+        {
+            dAmplitude = 0.0;
+        }
+
+        return dAmplitude;
+    }
+
+    void noteOn()
+    {
+        dTriggerOnTime = SDL_GetTicks();
+        bNoteOn = true;
+    }
+
+    void noteOff()
+    {
+        dTriggerOffTime = SDL_GetTicks();
+        bNoteOn = false;
+    }
+};
 
 enum WY_OscillatorType
 {
