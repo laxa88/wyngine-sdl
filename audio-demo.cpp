@@ -80,7 +80,7 @@ class Game : public Wyngine
     }
 
 public:
-    Game() : Wyngine("Wyngine audio demo", 256, 224, 3)
+    Game() : Wyngine("Wyngine audio demo", 256, 224, 2)
     {
         loadMedia();
 
