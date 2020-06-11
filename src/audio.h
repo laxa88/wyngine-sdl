@@ -231,9 +231,11 @@ public:
     // Do not printf here as it will be very slow;
     // It runs at a high frequency, e.g. ~44100 per frame
     // Expects a return value between -1 to 1.
-    virtual double getAudioSample(double time)
+    virtual double getAudioSample(double dTime)
     {
-        return std::sin(2.0f * M_PI * time * mNote);
+        return WY_Oscillator::oscillate(getNote(), dTime, OSC_SINE);
+
+        // return std::sin(2.0f * M_PI * time * mNote);
     }
 
     virtual void updateAudio(Uint8 *stream, int streamLen)
@@ -259,7 +261,7 @@ public:
         for (int i = 0; i < bufferLength; i++)
         {
             double samplePos = (double)mSampleIndex / (double)mSampleRate;
-            buffer[i] = mPlaying * mAmplitude * (double)getAudioSample(samplePos);
+            buffer[i] = mPlaying * mAmplitude * getAudioSample(samplePos);
 
             mSampleIndex++;
             // mSampleIndex %= mSampleRate;
