@@ -98,9 +98,13 @@ public:
         }
         else if (keyboard->isKeyPressed(SDLK_4))
         {
-            audio->setInstrument(OSC_SAW);
+            audio->setInstrument(OSC_SAW_ANALOGUE);
         }
         else if (keyboard->isKeyPressed(SDLK_5))
+        {
+            audio->setInstrument(OSC_SAW_OPTIMIZED);
+        }
+        else if (keyboard->isKeyPressed(SDLK_6))
         {
             audio->setInstrument(OSC_NOISE);
         }

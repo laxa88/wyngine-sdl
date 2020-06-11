@@ -21,7 +21,8 @@ enum WY_OscillatorType
     OSC_SINE,
     OSC_SQUARE,
     OSC_TRIANGLE,
-    OSC_SAW,
+    OSC_SAW_ANALOGUE,
+    OSC_SAW_OPTIMIZED,
     OSC_NOISE,
     OSC_UNKNOWN
 };
@@ -39,8 +40,10 @@ public:
             return "square wave";
         case OSC_TRIANGLE:
             return "triangle wave";
-        case OSC_SAW:
-            return "saw wave";
+        case OSC_SAW_ANALOGUE:
+            return "saw wave (analogue, warm)";
+        case OSC_SAW_OPTIMIZED:
+            return "saw wave (optimized, harsh)";
         case OSC_NOISE:
             return "noise";
         default:
@@ -53,11 +56,11 @@ public:
         switch (nType)
         {
         case OSC_SINE:
-            return sin(2.0f * M_PI * dTime * dFreq);
+            return sin(2.0 * M_PI * dTime * dFreq);
 
         case OSC_SQUARE:
         {
-            double output = sin(2.0f * M_PI * dTime * dFreq);
+            double output = sin(2.0 * M_PI * dTime * dFreq);
             if (output > 0.0)
             {
                 return 1.0;
@@ -70,17 +73,28 @@ public:
 
         case OSC_TRIANGLE:
         {
-            return asin(sin(2.0f * M_PI * dTime * dFreq)) * 2.0 / M_PI;
+            return asin(sin(2.0 * M_PI * dTime * dFreq)) * 2.0 / M_PI;
         }
 
-        case OSC_SAW:
+        case OSC_SAW_ANALOGUE:
         {
-            return (2.0 * M_PI) * (dFreq * M_PI * fmod(dTime, 1.0 / dFreq) - (M_PI / 2.0));
+            double dOutput = 0.0;
+
+            for (double n = 1.0; n < 10.0; n++)
+            {
+                dOutput += (sin(n * dFreq * 2.0 * M_PI * dTime)) / n;
+            }
+
+            return dOutput * (2.0 / M_PI);
+        }
+
+        case OSC_SAW_OPTIMIZED:
+        {
+            return (2.0 / M_PI) * (dFreq * M_PI * fmod(dTime, 1.0 / dFreq) - (M_PI / 2.0));
         }
 
         case OSC_NOISE:
-            // TODO
-            return 0;
+            return 2.0 * ((double)random(RAND_MAX) / (double)RAND_MAX) - 1.0;
 
         default:
             return 0;
@@ -234,8 +248,6 @@ public:
     virtual double getAudioSample(double dTime)
     {
         return WY_Oscillator::oscillate(getNote(), dTime, OSC_SINE);
-
-        // return std::sin(2.0f * M_PI * time * mNote);
     }
 
     virtual void updateAudio(Uint8 *stream, int streamLen)
