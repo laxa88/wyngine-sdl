@@ -34,11 +34,11 @@ struct WY_Envelope
 
     WY_Envelope()
     {
-        dAttackTime = 0.01;
-        dDecayTime = 0.01;
+        dAttackTime = 100.0;
+        dDecayTime = 100.0;
         dStartAmplitude = 1.0;
         dSustainAmplitude = 0.8;
-        dReleaseTime = 0.02;
+        dReleaseTime = 200.0;
 
         dTriggerOnTime = 0.0;
         dTriggerOffTime = 0.0;
@@ -211,6 +211,7 @@ public:
 
     // Frequency, a.k.a. number of samples per second. Higher value = higher accuracy
     int mSampleRate;
+
     // Current sample position (audio dTime)
     int mSampleIndex = 0;
 
@@ -220,12 +221,14 @@ public:
     // Number of channels, e.g. mono = 1, stereo = 2, etc.
     int mChannels;
 
-    // Volume. 0 = silence, 1000 = max
+    // Volume. 0 = silence, 1000 = normal volume
     int mAmplitude;
 
     WY_AudioNote mNote = NOTE_A;
     int mOctave = 4;
     float mPlaying = 0.f;
+
+    WY_Envelope envelope;
 
     /**
      * Determines sampleSize format (range). Larger types = larger sample range.
@@ -304,12 +307,21 @@ public:
     void speak(WY_AudioNote note)
     {
         mNote = note;
-        mPlaying = 1.f;
+
+        if (!envelope.bNoteOn)
+        {
+            mPlaying = 1.f;
+            envelope.noteOn();
+        }
     }
 
     void silence()
     {
-        mPlaying = 0.f;
+        if (envelope.bNoteOn)
+        {
+            mPlaying = 0.f;
+            envelope.noteOff();
+        }
     }
 
     void play()
@@ -351,7 +363,7 @@ public:
         for (int i = 0; i < bufferLength; i++)
         {
             double samplePos = (double)mSampleIndex / (double)mSampleRate;
-            buffer[i] = mPlaying * mAmplitude * getAudioSample(samplePos);
+            buffer[i] = envelope.getAmplitude() * mAmplitude * getAudioSample(samplePos);
 
             mSampleIndex++;
             // mSampleIndex %= mSampleRate; // FIXME: sound clicks when wrapping
