@@ -180,9 +180,11 @@ public:
     {
         std::string t1 = "Time elapsed        : ";
         std::string t2 = std::to_string(timer->getTimeSinceStart());
-        std::string t3 = "\nSample rate (freq)  : ";
+        std::string t3 = "\n\nfrequency / current sample :\n";
         std::string t4 = std::to_string(audio->mSampleRate);
-        std::string t5 = "\nSample size         : ";
+        std::string t4a = " / ";
+        std::string t4b = std::to_string(audio->mSampleIndex);
+        std::string t5 = "\n\nSample size         : ";
         std::string t6 = std::to_string(audio->mSampleSize);
         std::string t7 = "\nAmplitude (volume)  : ";
         std::string t8 = std::to_string(audio->mAmplitude);
@@ -194,7 +196,7 @@ public:
         std::string s3 = "\nOctave     : ";
         std::string s4 = std::to_string(audio->mOctave);
 
-        mFont->print(mRenderer, t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10 + s1 + s2 + s3 + s4);
+        mFont->print(mRenderer, t1 + t2 + t3 + t4 + t4a + t4b + t5 + t6 + t7 + t8 + t9 + t10 + s1 + s2 + s3 + s4);
     }
 };
 

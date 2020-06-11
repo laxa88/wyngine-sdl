@@ -333,9 +333,6 @@ public:
 
     virtual void updateAudio(Uint8 *stream, int streamLen)
     {
-        // TODO: probably need to move this into update loops
-        // to fix stutters in web build
-
         // printf("\nsample: %d, %d", mSampleIndex, streamLen);
 
         Sint16 *buffer = (Sint16 *)stream;
@@ -357,7 +354,7 @@ public:
             buffer[i] = mPlaying * mAmplitude * getAudioSample(samplePos);
 
             mSampleIndex++;
-            // mSampleIndex %= mSampleRate;
+            // mSampleIndex %= mSampleRate; // FIXME: sound clicks when wrapping
         }
     }
 };
