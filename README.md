@@ -10,7 +10,9 @@ v1.0
 
 - [x] Loads PNG images
 - [x] Supports mini-ASCII bitmap font
-- [ ] Audio synthesis
+- [x] Audio synthesis
+- [ ] MIDI player
+- [ ] SFX player
 - [x] Keyboard input
 - [ ] Mouse/touch input
 - [x] Targets Windows (desktop) via SDL2
@@ -20,6 +22,8 @@ v2.0
 
 - [ ] Image rotation
 - [ ] Sprite animation
+- [ ] 9-slice image
+- [ ] Buttons
 
 ### Nice to have
 
@@ -34,7 +38,9 @@ v2.0
 
 - [x] Timer / FPS
 - [x] Virtual keyboard
-- [ ] Audio
+- [x] Audio synthesizer
+- [ ] MIDI player
+- [ ] SFX generator (ala bfxr)
 - [ ] Pixel gradient animation
 - [ ] Bunnymark
 
