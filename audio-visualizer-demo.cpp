@@ -108,6 +108,10 @@ public:
         {
             audio->setInstrument(OSC_NOISE);
         }
+        else if (keyboard->isKeyPressed(SDLK_7))
+        {
+            audio->setInstrument(OSC_UFO);
+        }
 
         // music octave
 

@@ -20,6 +20,7 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 
+#define PI M_PI
 #define TWO_PI (2.0 * M_PI)
 #define BASE_FREQ_A0 27.50f
 #define ALMOST_SILENT 0.001
@@ -109,6 +110,7 @@ enum WY_OscillatorType
     OSC_SAW_ANALOGUE,
     OSC_SAW_OPTIMIZED,
     OSC_NOISE,
+    OSC_UFO,
     OSC_UNKNOWN
 };
 
@@ -131,21 +133,24 @@ public:
             return "saw wave (optimized, harsh)";
         case OSC_NOISE:
             return "noise";
+        case OSC_UFO:
+            return "woo wee woo sound";
         default:
             return "unknown";
         }
     }
 
+    // Return a value between -1 to 1
     static double oscillate(double dHertz, double dTime, WY_OscillatorType nType)
     {
         switch (nType)
         {
         case OSC_SINE:
-            return sin(dTime);
+            return sin(TWO_PI * dTime * dHertz);
 
         case OSC_SQUARE:
         {
-            double output = sin(dTime);
+            double output = sin(TWO_PI * dTime * dHertz);
             if (output > 0.0)
             {
                 return 1.0;
@@ -157,9 +162,7 @@ public:
         }
 
         case OSC_TRIANGLE:
-        {
-            return asin(sin(dTime));
-        }
+            return asin(sin(TWO_PI * dTime * dHertz));
 
         case OSC_SAW_ANALOGUE:
         {
@@ -167,19 +170,20 @@ public:
 
             for (double n = 1.0; n < 10.0; n++)
             {
-                dOutput += (sin(n * dTime)) / n;
+                dOutput += (sin(n * TWO_PI * dTime * dHertz)) / n;
             }
 
             return dOutput;
         }
 
         case OSC_SAW_OPTIMIZED:
-        {
-            return (2.0 / M_PI) * (M_PI * fmod(dTime / 6.0, 1.0) - (M_PI / 2.0));
-        }
+            return (2.0 / PI) * (dHertz * PI * fmod(dTime, 1.0 / dHertz) - (PI / 2.0));
 
         case OSC_NOISE:
             return 2.0 * ((double)random(RAND_MAX) / (double)RAND_MAX) - 1.0;
+
+        case OSC_UFO:
+            return sin(TWO_PI * dHertz * dTime + 0.5 * dHertz * sin(TWO_PI * 1.0 * dTime));
 
         default:
             return 0;
@@ -371,10 +375,13 @@ public:
         {
             buffer[i] = envelope.getAmplitude() * mAmplitude * getAudioSample(dTime);
 
-            dTime += (TWO_PI * dTimeDelta * getNote());
+            dTime += dTimeDelta;
 
-            if (dTime > TWO_PI)
-                dTime -= TWO_PI;
+            // dTime doesn't have to wrap;
+            // While basic (e.g. sine) waves theoretically can go on forever,
+            // non-basic waves do not have a 2PI and won't cleanly wrap.
+            // We assume in such cases we will turn them off manually,
+            // and reset dTime so that the wave plays cleanly from beginning.
         }
     }
 };
