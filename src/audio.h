@@ -169,6 +169,7 @@ public:
         }
 
         case OSC_SAW_OPTIMIZED:
+            // FIXME: use angular frequency
             return (2.0 / PI) * (dHertz * PI * fmod(dTime, 1.0 / dHertz) - (PI / 2.0));
 
         case OSC_NOISE:
