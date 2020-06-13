@@ -14,9 +14,9 @@ public:
         mInstrument = nType;
     }
 
-    double getAudioSample(double dTime)
+    double getAudioSample()
     {
-        return WY_Oscillator::oscillate(getNote(), dTime, mInstrument);
+        return WY_Oscillator::oscillate(getNote(), dTime, mInstrument, 5.0, 0.01);
     }
 };
 

@@ -141,28 +141,20 @@ public:
     }
 
     // Return a value between -1 to 1
-    static double oscillate(double dHertz, double dTime, WY_OscillatorType nType)
+    static double oscillate(double dHertz, double dTime, WY_OscillatorType nType, double dLFOHertz = 0.0, double dLFOAmplitude = 0.0)
     {
+        double dFreq = TWO_PI * dHertz * dTime + (dLFOAmplitude * dHertz * sin(TWO_PI * dLFOHertz * dTime));
+
         switch (nType)
         {
         case OSC_SINE:
-            return sin(TWO_PI * dTime * dHertz);
+            return sin(dFreq);
 
         case OSC_SQUARE:
-        {
-            double output = sin(TWO_PI * dTime * dHertz);
-            if (output > 0.0)
-            {
-                return 1.0;
-            }
-            else
-            {
-                return -1.0;
-            }
-        }
+            return sin(dFreq) > 0.0 ? 1.0 : -1.0;
 
         case OSC_TRIANGLE:
-            return asin(sin(TWO_PI * dTime * dHertz));
+            return asin(sin(dFreq));
 
         case OSC_SAW_ANALOGUE:
         {
@@ -170,7 +162,7 @@ public:
 
             for (double n = 1.0; n < 10.0; n++)
             {
-                dOutput += (sin(n * TWO_PI * dTime * dHertz)) / n;
+                dOutput += (sin(n * dFreq)) / n;
             }
 
             return dOutput;
@@ -183,7 +175,7 @@ public:
             return 2.0 * ((double)random(RAND_MAX) / (double)RAND_MAX) - 1.0;
 
         case OSC_UFO:
-            return sin(TWO_PI * dHertz * dTime + 0.5 * dHertz * sin(TWO_PI * 1.0 * dTime));
+            return sin(TWO_PI * dHertz * dTime + 0.01 * dHertz * sin(TWO_PI * 5.0 * dTime));
 
         default:
             return 0;
@@ -347,7 +339,7 @@ public:
     // Do not printf here as it will be very slow;
     // It runs at a high frequency, e.g. ~44100 per frame
     // Expects a return value between -1 to 1.
-    virtual double getAudioSample(double dTime)
+    virtual double getAudioSample()
     {
         return WY_Oscillator::oscillate(getNote(), dTime, OSC_SINE);
     }
@@ -373,7 +365,7 @@ public:
 
         for (int i = 0; i < bufferLength; i++)
         {
-            buffer[i] = envelope.getAmplitude() * mAmplitude * getAudioSample(dTime);
+            buffer[i] = envelope.getAmplitude() * mAmplitude * getAudioSample();
 
             dTime += dTimeDelta;
 
