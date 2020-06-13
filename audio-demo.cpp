@@ -16,7 +16,7 @@ public:
 
     double getAudioSample(double dTime)
     {
-        return WY_Oscillator::oscillate(getNote(), dTime, mInstrument);
+        return WY_Oscillator::oscillate(dTime, mInstrument);
     }
 };
 
@@ -183,7 +183,7 @@ public:
         std::string t3 = "\n\nfrequency / current sample :\n";
         std::string t4 = std::to_string(audio->mSampleRate);
         std::string t4a = " / ";
-        std::string t4b = std::to_string(audio->mSampleIndex);
+        std::string t4b = std::to_string(audio->dTime);
         std::string t5 = "\n\nSample size         : ";
         std::string t6 = std::to_string(audio->mSampleSize);
         std::string t7 = "\nAmplitude (volume)  : ";

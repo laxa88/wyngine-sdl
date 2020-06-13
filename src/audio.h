@@ -17,6 +17,7 @@
 #include <math.h>
 #include <SDL2/SDL.h>
 
+#define TWO_PI (2.0 * M_PI)
 #define BASE_FREQ_A0 27.50f
 #define ALMOST_SILENT 0.001
 
@@ -132,16 +133,16 @@ public:
         }
     }
 
-    static double oscillate(double dFreq, double dTime, WY_OscillatorType nType)
+    static double oscillate(double dTime, WY_OscillatorType nType)
     {
         switch (nType)
         {
         case OSC_SINE:
-            return sin(2.0 * M_PI * dTime * dFreq);
+            return sin(dTime);
 
         case OSC_SQUARE:
         {
-            double output = sin(2.0 * M_PI * dTime * dFreq);
+            double output = sin(dTime);
             if (output > 0.0)
             {
                 return 1.0;
@@ -154,7 +155,7 @@ public:
 
         case OSC_TRIANGLE:
         {
-            return asin(sin(2.0 * M_PI * dTime * dFreq)) * 2.0 / M_PI;
+            return asin(sin(dTime));
         }
 
         case OSC_SAW_ANALOGUE:
@@ -163,15 +164,15 @@ public:
 
             for (double n = 1.0; n < 10.0; n++)
             {
-                dOutput += (sin(n * dFreq * 2.0 * M_PI * dTime)) / n;
+                dOutput += (sin(n * dTime)) / n;
             }
 
-            return dOutput * (2.0 / M_PI);
+            return dOutput;
         }
 
         case OSC_SAW_OPTIMIZED:
         {
-            return (2.0 / M_PI) * (dFreq * M_PI * fmod(dTime, 1.0 / dFreq) - (M_PI / 2.0));
+            return (2.0 / M_PI) * (M_PI * fmod(dTime / 6.0, 1.0) - (M_PI / 2.0));
         }
 
         case OSC_NOISE:
@@ -212,8 +213,9 @@ public:
     // Frequency, a.k.a. number of samples per second. Higher value = higher accuracy
     int mSampleRate;
 
-    // Current sample position (audio dTime)
-    int mSampleIndex = 0;
+    // Current sample (phase) position
+    // Reference: https://en.wikipedia.org/wiki/Phase_(waves)
+    double dTime = 0.0;
 
     // Buffer size for samples. More samples = better accuracy, but slower performance.
     int mSampleSize;
@@ -340,7 +342,7 @@ public:
     // Expects a return value between -1 to 1.
     virtual double getAudioSample(double dTime)
     {
-        return WY_Oscillator::oscillate(getNote(), dTime, OSC_SINE);
+        return WY_Oscillator::oscillate(dTime, OSC_SINE);
     }
 
     virtual void updateAudio(Uint8 *stream, int streamLen)
@@ -360,13 +362,16 @@ public:
          */
         int bufferLength = streamLen / 2; // 2 bytes per sample for AUDIO_S16SYS
 
+        double dTimeDelta = 1.0 / (double)mSampleRate;
+
         for (int i = 0; i < bufferLength; i++)
         {
-            double samplePos = (double)mSampleIndex / (double)mSampleRate;
-            buffer[i] = envelope.getAmplitude() * mAmplitude * getAudioSample(samplePos);
+            buffer[i] = envelope.getAmplitude() * mAmplitude * getAudioSample(dTime);
 
-            mSampleIndex++;
-            // mSampleIndex %= mSampleRate; // FIXME: sound clicks when wrapping
+            dTime += (TWO_PI * dTimeDelta * getNote());
+
+            if (dTime > TWO_PI)
+                dTime -= TWO_PI;
         }
     }
 };
