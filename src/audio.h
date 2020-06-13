@@ -39,11 +39,11 @@ struct WY_Envelope
 
     WY_Envelope()
     {
-        dAttackTime = 100.0;
-        dDecayTime = 100.0;
+        dAttackTime = 10.0;
+        dDecayTime = 1000.0;
         dStartAmplitude = 1.0;
-        dSustainAmplitude = 0.8;
-        dReleaseTime = 200.0;
+        dSustainAmplitude = 0.0;
+        dReleaseTime = 1000.0;
 
         dTriggerOnTime = 0.0;
         dTriggerOffTime = 0.0;
@@ -184,6 +184,57 @@ public:
     }
 };
 
+struct WY_Instrument
+{
+    double dVolume;
+    WY_Envelope env;
+
+    virtual double sound(double dTime, double dFreq) = 0;
+};
+
+struct harmonica : public WY_Instrument
+{
+    harmonica()
+    {
+        env.dAttackTime = 100.0;
+        env.dDecayTime = 100.0;
+        env.dStartAmplitude = 1.0;
+        env.dSustainAmplitude = 0.8;
+        env.dReleaseTime = 200.0;
+    }
+
+    double sound(double dTime, double dFreq)
+    {
+        double dOutput = env.getAmplitude() * (1.0 * WY_Oscillator::oscillate(dFreq, dTime, OSC_SQUARE, 5.0, 0.001) +
+                                               0.5 * WY_Oscillator::oscillate(dFreq * 1.5, dTime, OSC_SQUARE) +
+                                               0.25 * WY_Oscillator::oscillate(dFreq * 2.0, dTime, OSC_SQUARE) +
+                                               0.05 * WY_Oscillator::oscillate(0, dTime, OSC_NOISE));
+
+        return dOutput;
+    }
+};
+
+struct bell : public WY_Instrument
+{
+    bell()
+    {
+        env.dAttackTime = 5.0;
+        env.dDecayTime = 1000.0;
+        env.dStartAmplitude = 1.0;
+        env.dSustainAmplitude = 0.0;
+        env.dReleaseTime = 1000.0;
+    }
+
+    double sound(double dTime, double dFreq)
+    {
+        double dOutput = env.getAmplitude() * (1.0 * WY_Oscillator::oscillate(dFreq * 2.0, dTime, OSC_SINE, 5.0, 0.001) +
+                                               0.5 * WY_Oscillator::oscillate(dFreq * 3.0, dTime, OSC_SINE) +
+                                               0.25 * WY_Oscillator::oscillate(dFreq * 4.0, dTime, OSC_SINE));
+
+        return dOutput;
+    }
+};
+
 enum WY_AudioNote
 {
     NOTE_A,
@@ -229,8 +280,6 @@ public:
     WY_AudioNote mNote = NOTE_A;
     int mOctave = 4;
     float mPlaying = 0.f;
-
-    WY_Envelope envelope;
 
     /**
      * Determines sampleSize format (range). Larger types = larger sample range.
@@ -306,24 +355,15 @@ public:
         }
     }
 
-    void speak(WY_AudioNote note)
+    virtual void speak(WY_AudioNote note)
     {
         mNote = note;
-
-        if (!envelope.bNoteOn)
-        {
-            mPlaying = 1.f;
-            envelope.noteOn();
-        }
+        mPlaying = 1.f;
     }
 
-    void silence()
+    virtual void silence()
     {
-        if (envelope.bNoteOn)
-        {
-            mPlaying = 0.f;
-            envelope.noteOff();
-        }
+        mPlaying = 0.f;
     }
 
     void play()
@@ -366,7 +406,7 @@ public:
 
         for (int i = 0; i < bufferLength; i++)
         {
-            buffer[i] = envelope.getAmplitude() * mAmplitude * getAudioSample();
+            buffer[i] = mAmplitude * getAudioSample();
 
             dTime += dTimeDelta;
 

@@ -2,21 +2,80 @@
 #include "src/font.h"
 #include "src/audio.h"
 
+enum WY_InstrumentType
+{
+    INS_HARMONICA,
+    INS_BELL
+};
+
 class GameAudio : public WY_Audio
 {
 public:
-    WY_OscillatorType mInstrument = OSC_SINE;
+    WY_InstrumentType instrumentType = INS_HARMONICA;
+    harmonica *ih;
+    bell *ib;
 
-    GameAudio() : WY_Audio(44100, 1024, 1, 1000) {}
-
-    void setInstrument(WY_OscillatorType nType)
+    GameAudio() : WY_Audio(44100, 1024, 1, 1000)
     {
-        mInstrument = nType;
+        ih = new harmonica();
+        ib = new bell();
+    }
+
+    void setInstrument(WY_InstrumentType it)
+    {
+        instrumentType = it;
+    }
+
+    void speak(WY_AudioNote note)
+    {
+        WY_Audio::speak(note);
+
+        if (!ih->env.bNoteOn)
+            ih->env.noteOn();
+
+        if (!ib->env.bNoteOn)
+            ib->env.noteOn();
+    }
+
+    void silence()
+    {
+        WY_Audio::silence();
+
+        if (ih->env.bNoteOn)
+            ih->env.noteOff();
+
+        if (ib->env.bNoteOn)
+            ib->env.noteOff();
+    }
+
+    std::string getInstrumentName()
+    {
+        switch (instrumentType)
+        {
+        case INS_HARMONICA:
+            return "Harmonica";
+
+        case INS_BELL:
+            return "Bell";
+
+        default:
+            return "Unknown";
+        }
     }
 
     double getAudioSample()
     {
-        return WY_Oscillator::oscillate(getNote(), dTime, mInstrument, 5.0, 0.01);
+        switch (instrumentType)
+        {
+        case INS_HARMONICA:
+            return ih->sound(dTime, getNote());
+
+        case INS_BELL:
+            return ib->sound(dTime, getNote());
+
+        default:
+            return 0.0;
+        }
     }
 };
 
@@ -86,31 +145,11 @@ public:
 
         if (keyboard->isKeyPressed(SDLK_1))
         {
-            audio->setInstrument(OSC_SINE);
+            audio->setInstrument(INS_HARMONICA);
         }
         else if (keyboard->isKeyPressed(SDLK_2))
         {
-            audio->setInstrument(OSC_SQUARE);
-        }
-        else if (keyboard->isKeyPressed(SDLK_3))
-        {
-            audio->setInstrument(OSC_TRIANGLE);
-        }
-        else if (keyboard->isKeyPressed(SDLK_4))
-        {
-            audio->setInstrument(OSC_SAW_ANALOGUE);
-        }
-        else if (keyboard->isKeyPressed(SDLK_5))
-        {
-            audio->setInstrument(OSC_SAW_OPTIMIZED);
-        }
-        else if (keyboard->isKeyPressed(SDLK_6))
-        {
-            audio->setInstrument(OSC_NOISE);
-        }
-        else if (keyboard->isKeyPressed(SDLK_7))
-        {
-            audio->setInstrument(OSC_UFO);
+            audio->setInstrument(INS_BELL);
         }
 
         // music octave
@@ -196,7 +235,7 @@ public:
         std::string t10 = std::to_string(audio->mChannels);
 
         std::string s1 = "\n\nInstrument : ";
-        std::string s2 = WY_Oscillator::getOscillatorTypeName(audio->mInstrument);
+        std::string s2 = audio->getInstrumentName();
         std::string s3 = "\nOctave     : ";
         std::string s4 = std::to_string(audio->mOctave);
 
