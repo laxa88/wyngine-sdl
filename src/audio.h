@@ -3,6 +3,9 @@
 // Oscillators and Envelopes
 // https://www.youtube.com/watch?v=OSCzKOqtgcA
 
+// Wrapping sample phase
+// https://codelabs.developers.google.com/codelabs/making-waves-1-synth/#3
+
 // Audio programming theory
 // https://www.youtube.com/watch?v=GjmcXfgKq78
 
