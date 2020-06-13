@@ -136,7 +136,7 @@ public:
         }
     }
 
-    static double oscillate(double dTime, WY_OscillatorType nType)
+    static double oscillate(double dHertz, double dTime, WY_OscillatorType nType)
     {
         switch (nType)
         {
@@ -345,7 +345,7 @@ public:
     // Expects a return value between -1 to 1.
     virtual double getAudioSample(double dTime)
     {
-        return WY_Oscillator::oscillate(dTime, OSC_SINE);
+        return WY_Oscillator::oscillate(getNote(), dTime, OSC_SINE);
     }
 
     virtual void updateAudio(Uint8 *stream, int streamLen)
