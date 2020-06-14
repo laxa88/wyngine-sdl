@@ -15,10 +15,10 @@ namespace wyaudio
         Envelope()
         {
             dAttackTime = 10.0;
-            dDecayTime = 1000.0;
+            dDecayTime = 100.0;
             dStartAmplitude = 1.0;
-            dSustainAmplitude = 0.0;
-            dReleaseTime = 1000.0;
+            dSustainAmplitude = 0.8;
+            dReleaseTime = 200.0;
         }
 
         double getAmplitude(const double dTime, const double dTimeOn, const double dTimeOff)
