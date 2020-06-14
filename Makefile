@@ -7,6 +7,7 @@
 # emcc main2.cpp -O3 --closure 1 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=["png"] --preload-file assets -o bin-js/webgame.html
 
 all : \
+	audio-demo \
 	audio-visualizer-demo
 
 keyboard-demo:

@@ -1,22 +1,23 @@
 #include "src/wyngine.h"
 #include "src/font.h"
-#include "src/audio.h"
+#include "src/audio/audio.h"
+#include "src/audio/oscillator.h"
 
 class GameAudio : public WY_Audio
 {
 public:
-    WY_OscillatorType mInstrument = OSC_SINE;
+    wyaudio::OscillatorType mInstrument = wyaudio::OSC_SINE;
 
     GameAudio() : WY_Audio(44100, 1024, 1, 1000) {}
 
-    void setInstrument(WY_OscillatorType nType)
+    void setInstrument(wyaudio::OscillatorType nType)
     {
         mInstrument = nType;
     }
 
     double getAudioSample()
     {
-        return WY_Oscillator::oscillate(getNote(), dTime, mInstrument);
+        return wyaudio::Oscillator::oscillate(getNote(), dTime, mInstrument);
     }
 };
 
@@ -86,27 +87,27 @@ public:
 
         if (keyboard->isKeyPressed(SDLK_1))
         {
-            audio->setInstrument(OSC_SINE);
+            audio->setInstrument(wyaudio::OSC_SINE);
         }
         else if (keyboard->isKeyPressed(SDLK_2))
         {
-            audio->setInstrument(OSC_SQUARE);
+            audio->setInstrument(wyaudio::OSC_SQUARE);
         }
         else if (keyboard->isKeyPressed(SDLK_3))
         {
-            audio->setInstrument(OSC_TRIANGLE);
+            audio->setInstrument(wyaudio::OSC_TRIANGLE);
         }
         else if (keyboard->isKeyPressed(SDLK_4))
         {
-            audio->setInstrument(OSC_SAW_ANALOGUE);
+            audio->setInstrument(wyaudio::OSC_SAW_ANALOGUE);
         }
         else if (keyboard->isKeyPressed(SDLK_5))
         {
-            audio->setInstrument(OSC_SAW_OPTIMIZED);
+            audio->setInstrument(wyaudio::OSC_SAW_OPTIMIZED);
         }
         else if (keyboard->isKeyPressed(SDLK_6))
         {
-            audio->setInstrument(OSC_NOISE);
+            audio->setInstrument(wyaudio::OSC_NOISE);
         }
 
         // music octave
@@ -192,7 +193,7 @@ public:
         std::string t10 = std::to_string(audio->mChannels);
 
         std::string s1 = "\n\nInstrument : ";
-        std::string s2 = WY_Oscillator::getOscillatorTypeName(audio->mInstrument);
+        std::string s2 = wyaudio::Oscillator::getOscillatorName(audio->mInstrument);
         std::string s3 = "\nOctave     : ";
         std::string s4 = std::to_string(audio->mOctave);
 
