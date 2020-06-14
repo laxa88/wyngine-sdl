@@ -1,10 +1,21 @@
+#include <string>
+
 #include "oscillator.h"
 #include "envelope.h"
 
 namespace wyaudio
 {
+    enum InstrumentType
+    {
+        INS_HARMONICA,
+        INS_BELL
+    };
+
     struct Instrument
     {
+        InstrumentType type;
+        std::string name;
+
         double dVolume;
         Envelope env;
 
@@ -15,6 +26,9 @@ namespace wyaudio
     {
         harmonica()
         {
+            type = INS_HARMONICA;
+            name = "Harmonica";
+
             env.dAttackTime = 100.0;
             env.dDecayTime = 100.0;
             env.dStartAmplitude = 1.0;
@@ -37,6 +51,9 @@ namespace wyaudio
     {
         bell()
         {
+            type = INS_BELL;
+            name = "Bell";
+
             env.dAttackTime = 5.0;
             env.dDecayTime = 1000.0;
             env.dStartAmplitude = 1.0;

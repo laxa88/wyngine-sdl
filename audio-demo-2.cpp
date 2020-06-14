@@ -3,16 +3,10 @@
 #include "src/audio/audio.h"
 #include "src/audio/instrument.h"
 
-enum WY_InstrumentType
-{
-    INS_HARMONICA,
-    INS_BELL
-};
-
 class GameAudio : public WY_Audio
 {
 public:
-    WY_InstrumentType instrumentType = INS_HARMONICA;
+    wyaudio::InstrumentType instrumentType = wyaudio::INS_HARMONICA;
     wyaudio::harmonica *ih;
     wyaudio::bell *ib;
 
@@ -22,7 +16,7 @@ public:
         ib = new wyaudio::bell();
     }
 
-    void setInstrument(WY_InstrumentType it)
+    void setInstrument(wyaudio::InstrumentType it)
     {
         instrumentType = it;
     }
@@ -53,11 +47,11 @@ public:
     {
         switch (instrumentType)
         {
-        case INS_HARMONICA:
-            return "Harmonica";
+        case wyaudio::INS_HARMONICA:
+            return ih->name;
 
-        case INS_BELL:
-            return "Bell";
+        case wyaudio::INS_BELL:
+            return ib->name;
 
         default:
             return "Unknown";
@@ -68,10 +62,10 @@ public:
     {
         switch (instrumentType)
         {
-        case INS_HARMONICA:
+        case wyaudio::INS_HARMONICA:
             return ih->sound(dTime, getNote());
 
-        case INS_BELL:
+        case wyaudio::INS_BELL:
             return ib->sound(dTime, getNote());
 
         default:
@@ -146,11 +140,11 @@ public:
 
         if (keyboard->isKeyPressed(SDLK_1))
         {
-            audio->setInstrument(INS_HARMONICA);
+            audio->setInstrument(wyaudio::INS_HARMONICA);
         }
         else if (keyboard->isKeyPressed(SDLK_2))
         {
-            audio->setInstrument(INS_BELL);
+            audio->setInstrument(wyaudio::INS_BELL);
         }
 
         // music octave
