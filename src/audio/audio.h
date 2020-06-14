@@ -23,160 +23,162 @@
 
 #define BASE_FREQ_A0 27.50f
 
-enum WY_AudioNote
+namespace wyaudio
 {
-    NOTE_A,
-    NOTE_AS,
-    NOTE_B,
-    NOTE_C,
-    NOTE_CS,
-    NOTE_D,
-    NOTE_DS,
-    NOTE_E,
-    NOTE_F,
-    NOTE_FS,
-    NOTE_G,
-    NOTE_GS,
-};
+    enum MusicNote
+    {
+        NOTE_A,
+        NOTE_AS,
+        NOTE_B,
+        NOTE_C,
+        NOTE_CS,
+        NOTE_D,
+        NOTE_DS,
+        NOTE_E,
+        NOTE_F,
+        NOTE_FS,
+        NOTE_G,
+        NOTE_GS,
+    };
 
-void audioCallback(void *userData, Uint8 *stream, int streamLen);
+    void audioCallback(void *userData, Uint8 *stream, int streamLen);
 
-class WY_Audio
-{
-    SDL_AudioDeviceID deviceId;
+    class WY_Audio
+    {
+        SDL_AudioDeviceID deviceId;
 
-public:
-    SDL_AudioSpec wantSpec;
-    SDL_AudioSpec haveSpec;
+    public:
+        SDL_AudioSpec wantSpec;
+        SDL_AudioSpec haveSpec;
 
-    // Frequency, a.k.a. number of samples per second. Higher value = higher accuracy
-    int mSampleRate;
+        // Frequency, a.k.a. number of samples per second. Higher value = higher accuracy
+        int mSampleRate;
 
-    // Current sample (phase) position
-    // Reference: https://en.wikipedia.org/wiki/Phase_(waves)
-    double dTime = 0.0;
+        // Current sample (phase) position
+        // Reference: https://en.wikipedia.org/wiki/Phase_(waves)
+        double dTime = 0.0;
 
-    // Buffer size for samples. More samples = better accuracy, but slower performance.
-    int mSampleSize;
+        // Buffer size for samples. More samples = better accuracy, but slower performance.
+        int mSampleSize;
 
-    // Number of channels, e.g. mono = 1, stereo = 2, etc.
-    int mChannels;
+        // Number of channels, e.g. mono = 1, stereo = 2, etc.
+        int mChannels;
 
-    // Volume. 0 = silence, 1000 = normal volume
-    int mAmplitude;
+        // Volume. 0 = silence, 1000 = normal volume
+        int mAmplitude;
 
-    WY_AudioNote mNote = NOTE_A;
-    int mOctave = 4;
-    float mPlaying = 0.f;
+        MusicNote mNote = NOTE_A;
+        int mOctave = 4;
+        float mPlaying = 0.f;
 
-    /**
+        /**
      * Determines sampleSize format (range). Larger types = larger sample range.
      * If the format is too large, you may end up hearing nothing because the
      * buffer data's values are all too low to be audible. The inverse is also true.
      *
      * i.e.: Lower format gives off a DOS-like sound, higher format is smoother and modern.
     */
-    SDL_AudioFormat audioFormat = AUDIO_S16;
+        SDL_AudioFormat audioFormat = AUDIO_S16;
 
-    WY_Audio(unsigned int sampleRate = 44100, unsigned int sampleSize = 1024, unsigned int channels = 2, unsigned int amplitude = 500)
-    {
-        SDL_Init(SDL_INIT_AUDIO);
-
-        SDL_zero(wantSpec);
-        SDL_zero(haveSpec);
-
-        wantSpec.freq = sampleRate;
-        wantSpec.format = audioFormat;
-        wantSpec.channels = channels;
-        wantSpec.samples = sampleSize;
-        wantSpec.callback = audioCallback;
-        wantSpec.userdata = this;
-
-        deviceId = SDL_OpenAudioDevice(NULL, 0, &wantSpec, &haveSpec, 0);
-        if (deviceId == 0)
+        WY_Audio(unsigned int sampleRate = 44100, unsigned int sampleSize = 1024, unsigned int channels = 2, unsigned int amplitude = 500)
         {
-            printf("\nFailed to open audio: %s\n", SDL_GetError());
-            return;
+            SDL_Init(SDL_INIT_AUDIO);
+
+            SDL_zero(wantSpec);
+            SDL_zero(haveSpec);
+
+            wantSpec.freq = sampleRate;
+            wantSpec.format = audioFormat;
+            wantSpec.channels = channels;
+            wantSpec.samples = sampleSize;
+            wantSpec.callback = audioCallback;
+            wantSpec.userdata = this;
+
+            deviceId = SDL_OpenAudioDevice(NULL, 0, &wantSpec, &haveSpec, 0);
+            if (deviceId == 0)
+            {
+                printf("\nFailed to open audio: %s\n", SDL_GetError());
+                return;
+            }
+            if (wantSpec.format != haveSpec.format)
+                printf("\nFailed to get the desired AudioSpec");
+
+            mSampleRate = haveSpec.freq;
+            mSampleSize = haveSpec.size / haveSpec.channels;
+            mChannels = haveSpec.channels;
+            mAmplitude = amplitude;
+
+            play();
         }
-        if (wantSpec.format != haveSpec.format)
-            printf("\nFailed to get the desired AudioSpec");
 
-        mSampleRate = haveSpec.freq;
-        mSampleSize = haveSpec.size / haveSpec.channels;
-        mChannels = haveSpec.channels;
-        mAmplitude = amplitude;
-
-        play();
-    }
-
-    ~WY_Audio()
-    {
-        SDL_CloseAudioDevice(deviceId);
-
-        delete &wantSpec;
-        delete &haveSpec;
-    }
-
-    // Returns note in frequency
-    double getNote()
-    {
-        double d12thRootOf2 = pow(2.0, 1.0 / 12);
-        double octave = pow(2.0, mOctave);
-        double res = BASE_FREQ_A0 * pow(d12thRootOf2, mNote) * (double)octave;
-
-        return res;
-    }
-
-    void increaseOctave()
-    {
-        if (++mOctave > 7)
+        ~WY_Audio()
         {
-            mOctave = 7;
-        }
-    }
+            SDL_CloseAudioDevice(deviceId);
 
-    void decreaseOctave()
-    {
-        if (--mOctave < 1)
+            delete &wantSpec;
+            delete &haveSpec;
+        }
+
+        // Returns note in frequency
+        double getNote()
         {
-            mOctave = 1;
+            double d12thRootOf2 = pow(2.0, 1.0 / 12);
+            double octave = pow(2.0, mOctave);
+            double res = BASE_FREQ_A0 * pow(d12thRootOf2, mNote) * (double)octave;
+
+            return res;
         }
-    }
 
-    virtual void speak(WY_AudioNote note)
-    {
-        mNote = note;
-        mPlaying = 1.f;
-    }
+        void increaseOctave()
+        {
+            if (++mOctave > 7)
+            {
+                mOctave = 7;
+            }
+        }
 
-    virtual void silence()
-    {
-        mPlaying = 0.f;
-    }
+        void decreaseOctave()
+        {
+            if (--mOctave < 1)
+            {
+                mOctave = 1;
+            }
+        }
 
-    void play()
-    {
-        SDL_PauseAudioDevice(deviceId, 0);
-    }
+        virtual void speak(MusicNote note)
+        {
+            mNote = note;
+            mPlaying = 1.f;
+        }
 
-    void pause()
-    {
-        SDL_PauseAudioDevice(deviceId, 1);
-    }
+        virtual void silence()
+        {
+            mPlaying = 0.f;
+        }
 
-    // Overwrite this to create your own audio sample.
-    // Do not printf here as it will be very slow;
-    // It runs at a high frequency, e.g. ~44100 per frame
-    // Expects a return value between -1 to 1.
-    virtual double getAudioSample() = 0;
+        void play()
+        {
+            SDL_PauseAudioDevice(deviceId, 0);
+        }
 
-    virtual void updateAudio(Uint8 *stream, int streamLen)
-    {
-        // printf("\nsample: %d, %d", mSampleIndex, streamLen);
+        void pause()
+        {
+            SDL_PauseAudioDevice(deviceId, 1);
+        }
 
-        Sint16 *buffer = (Sint16 *)stream;
+        // Overwrite this to create your own audio sample.
+        // Do not printf here as it will be very slow;
+        // It runs at a high frequency, e.g. ~44100 per frame
+        // Expects a return value between -1 to 1.
+        virtual double getAudioSample() = 0;
 
-        /**
+        virtual void updateAudio(Uint8 *stream, int streamLen)
+        {
+            // printf("\nsample: %d, %d", mSampleIndex, streamLen);
+
+            Sint16 *buffer = (Sint16 *)stream;
+
+            /**
          * stream length is (sampleSize * channels * byte format).
          *
          * e.g.
@@ -185,26 +187,27 @@ public:
          * audioFormat = AUDIO_S16
          * streamLen = 1024 * 2 * 2 (S16 = 2 bytes) = 4096
          */
-        int bufferLength = streamLen / 2; // 2 bytes per sample for AUDIO_S16SYS
+            int bufferLength = streamLen / 2; // 2 bytes per sample for AUDIO_S16SYS
 
-        double dTimeDelta = 1.0 / (double)mSampleRate;
+            double dTimeDelta = 1.0 / (double)mSampleRate;
 
-        for (int i = 0; i < bufferLength; i++)
-        {
-            buffer[i] = mAmplitude * getAudioSample();
+            for (int i = 0; i < bufferLength; i++)
+            {
+                buffer[i] = mAmplitude * getAudioSample();
 
-            dTime += dTimeDelta;
+                dTime += dTimeDelta;
 
-            // dTime doesn't have to wrap;
-            // While basic (e.g. sine) waves theoretically can go on forever,
-            // non-basic waves do not have a 2PI and won't cleanly wrap.
-            // We assume in such cases we will turn them off manually,
-            // and reset dTime so that the wave plays cleanly from beginning.
+                // dTime doesn't have to wrap;
+                // While basic (e.g. sine) waves theoretically can go on forever,
+                // non-basic waves do not have a 2PI and won't cleanly wrap.
+                // We assume in such cases we will turn them off manually,
+                // and reset dTime so that the wave plays cleanly from beginning.
+            }
         }
-    }
-};
+    };
 
-void audioCallback(void *user_data, Uint8 *raw_buffer, int bytes)
-{
-    static_cast<WY_Audio *>(user_data)->updateAudio(raw_buffer, bytes);
-}
+    void audioCallback(void *user_data, Uint8 *raw_buffer, int bytes)
+    {
+        static_cast<WY_Audio *>(user_data)->updateAudio(raw_buffer, bytes);
+    }
+}; // namespace wyaudio

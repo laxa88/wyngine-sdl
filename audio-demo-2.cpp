@@ -3,14 +3,14 @@
 #include "src/audio/audio.h"
 #include "src/audio/instrument.h"
 
-class GameAudio : public WY_Audio
+class GameAudio : public wyaudio::WY_Audio
 {
 public:
     wyaudio::InstrumentType instrumentType = wyaudio::INS_HARMONICA;
     wyaudio::harmonica *ih;
     wyaudio::bell *ib;
 
-    GameAudio() : WY_Audio(44100, 1024, 1, 1000)
+    GameAudio() : wyaudio::WY_Audio(44100, 1024, 1, 1000)
     {
         ih = new wyaudio::harmonica();
         ib = new wyaudio::bell();
@@ -21,7 +21,7 @@ public:
         instrumentType = it;
     }
 
-    void speak(WY_AudioNote note)
+    void speak(wyaudio::MusicNote note)
     {
         WY_Audio::speak(note);
 
@@ -162,51 +162,51 @@ public:
 
         if (keyboard->isKeyDown(SDLK_z))
         {
-            audio->speak(NOTE_A);
+            audio->speak(wyaudio::NOTE_A);
         }
         else if (keyboard->isKeyDown(SDLK_s))
         {
-            audio->speak(NOTE_AS);
+            audio->speak(wyaudio::NOTE_AS);
         }
         else if (keyboard->isKeyDown(SDLK_x))
         {
-            audio->speak(NOTE_B);
+            audio->speak(wyaudio::NOTE_B);
         }
         else if (keyboard->isKeyDown(SDLK_c))
         {
-            audio->speak(NOTE_C);
+            audio->speak(wyaudio::NOTE_C);
         }
         else if (keyboard->isKeyDown(SDLK_f))
         {
-            audio->speak(NOTE_CS);
+            audio->speak(wyaudio::NOTE_CS);
         }
         else if (keyboard->isKeyDown(SDLK_v))
         {
-            audio->speak(NOTE_D);
+            audio->speak(wyaudio::NOTE_D);
         }
         else if (keyboard->isKeyDown(SDLK_g))
         {
-            audio->speak(NOTE_DS);
+            audio->speak(wyaudio::NOTE_DS);
         }
         else if (keyboard->isKeyDown(SDLK_b))
         {
-            audio->speak(NOTE_E);
+            audio->speak(wyaudio::NOTE_E);
         }
         else if (keyboard->isKeyDown(SDLK_n))
         {
-            audio->speak(NOTE_F);
+            audio->speak(wyaudio::NOTE_F);
         }
         else if (keyboard->isKeyDown(SDLK_j))
         {
-            audio->speak(NOTE_FS);
+            audio->speak(wyaudio::NOTE_FS);
         }
         else if (keyboard->isKeyDown(SDLK_m))
         {
-            audio->speak(NOTE_G);
+            audio->speak(wyaudio::NOTE_G);
         }
         else if (keyboard->isKeyDown(SDLK_k))
         {
-            audio->speak(NOTE_GS);
+            audio->speak(wyaudio::NOTE_GS);
         }
         else
         {
