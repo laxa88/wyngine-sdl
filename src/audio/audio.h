@@ -21,26 +21,8 @@
 #include <SDL2/SDL.h>
 #include "../math.h"
 
-#define BASE_FREQ_A0 27.50f
-
 namespace wyaudio
 {
-    enum MusicNote
-    {
-        NOTE_A,
-        NOTE_AS,
-        NOTE_B,
-        NOTE_C,
-        NOTE_CS,
-        NOTE_D,
-        NOTE_DS,
-        NOTE_E,
-        NOTE_F,
-        NOTE_FS,
-        NOTE_G,
-        NOTE_GS,
-    };
-
     void audioCallback(void *userData, Uint8 *stream, int streamLen);
 
     class WY_Audio
@@ -67,7 +49,7 @@ namespace wyaudio
         // Volume. 0 = silence, 1000 = normal volume
         int mAmplitude;
 
-        MusicNote mNote = NOTE_A;
+        // MusicNote mNote = NOTE_A;
         int mOctave = 4;
         float mPlaying = 0.f;
 
@@ -119,16 +101,6 @@ namespace wyaudio
             delete &haveSpec;
         }
 
-        // Returns note in frequency
-        double getNote()
-        {
-            double d12thRootOf2 = pow(2.0, 1.0 / 12);
-            double octave = pow(2.0, mOctave);
-            double res = BASE_FREQ_A0 * pow(d12thRootOf2, mNote) * (double)octave;
-
-            return res;
-        }
-
         void increaseOctave()
         {
             if (++mOctave > 7)
@@ -145,17 +117,6 @@ namespace wyaudio
             }
         }
 
-        virtual void speak(MusicNote note)
-        {
-            mNote = note;
-            mPlaying = 1.f;
-        }
-
-        virtual void silence()
-        {
-            mPlaying = 0.f;
-        }
-
         void play()
         {
             SDL_PauseAudioDevice(deviceId, 0);
@@ -169,7 +130,8 @@ namespace wyaudio
         // Overwrite this to create your own audio sample.
         // Do not printf here as it will be very slow;
         // It runs at a high frequency, e.g. ~44100 per frame
-        // Expects a return value between -1 to 1.
+        // - Runs in audio thread, use mutex when possible.
+        // - Expects a return value between -1 to 1.
         virtual double getAudioSample() = 0;
 
         virtual void updateAudio(Uint8 *stream, int streamLen)

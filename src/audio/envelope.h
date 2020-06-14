@@ -12,10 +12,6 @@ namespace wyaudio
         double dSustainAmplitude;
         double dReleaseTime;
 
-        double dTriggerOnTime;
-        double dTriggerOffTime;
-        bool bNoteOn;
-
         Envelope()
         {
             dAttackTime = 10.0;
@@ -23,20 +19,16 @@ namespace wyaudio
             dStartAmplitude = 1.0;
             dSustainAmplitude = 0.0;
             dReleaseTime = 1000.0;
-
-            dTriggerOnTime = 0.0;
-            dTriggerOffTime = 0.0;
-            bNoteOn = false;
         }
 
-        double getAmplitude()
+        double getAmplitude(const double dTime, const double dTimeOn, const double dTimeOff)
         {
-            double dTime = SDL_GetTicks();
             double dAmplitude = 0.0;
+            double dReleaseAmplitude = 0.0;
 
-            if (bNoteOn)
+            if (dTimeOn > dTimeOff)
             {
-                double dLifeTime = dTime - dTriggerOnTime;
+                double dLifeTime = dTime - dTimeOn;
 
                 if (dLifeTime <= dAttackTime)
                 {
@@ -56,8 +48,22 @@ namespace wyaudio
             }
             else
             {
-                // Release
-                dAmplitude = dSustainAmplitude - (((dTime - dTriggerOffTime) / dReleaseTime) * dSustainAmplitude);
+                double dLifeTime = dTimeOff - dTimeOn;
+
+                if (dLifeTime <= dAttackTime)
+                {
+                    dReleaseAmplitude = (dLifeTime / dAttackTime) * dStartAmplitude;
+                }
+                else if (dLifeTime <= (dAttackTime + dDecayTime))
+                {
+                    dReleaseAmplitude = dStartAmplitude - ((dLifeTime - dAttackTime) / dDecayTime) * (dStartAmplitude - dSustainAmplitude);
+                }
+                else
+                {
+                    dReleaseAmplitude = dSustainAmplitude;
+                }
+
+                dAmplitude = dReleaseAmplitude - (((dTime - dTimeOff) / dReleaseTime) * dReleaseAmplitude);
             }
 
             if (dAmplitude < ALMOST_SILENT)
@@ -66,18 +72,6 @@ namespace wyaudio
             }
 
             return dAmplitude;
-        }
-
-        void noteOn()
-        {
-            dTriggerOnTime = SDL_GetTicks();
-            bNoteOn = true;
-        }
-
-        void noteOff()
-        {
-            dTriggerOffTime = SDL_GetTicks();
-            bNoteOn = false;
         }
     };
 } // namespace wyaudio

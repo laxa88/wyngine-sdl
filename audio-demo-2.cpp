@@ -1,76 +1,150 @@
+#include <vector>
+#include <algorithm>
+#include <mutex>
+
 #include "src/wyngine.h"
 #include "src/font.h"
 #include "src/audio/audio.h"
 #include "src/audio/instrument.h"
 
+typedef bool (*lambda)(wyaudio::Note const &item);
+template <class T>
+void safe_remove(T &v, lambda f)
+{
+    auto n = v.begin();
+    while (n != v.end())
+        if (!f(*n))
+            n = v.erase(n);
+        else
+            ++n;
+}
+
 class GameAudio : public wyaudio::WY_Audio
 {
 public:
-    wyaudio::InstrumentType instrumentType = wyaudio::INS_HARMONICA;
-    wyaudio::harmonica *ih;
-    wyaudio::bell *ib;
+    std::vector<wyaudio::Note> vecNotes;
+    wyaudio::InstrumentType instType;
+    wyaudio::bell instBell;
+    wyaudio::harmonica instHarm;
+    wyaudio::square instSquare;
+
+    wyaudio::Note note;
+    wyaudio::MusicNote mNote;
+    double mPlaying;
 
     GameAudio() : wyaudio::WY_Audio(44100, 1024, 1, 1000)
     {
-        ih = new wyaudio::harmonica();
-        ib = new wyaudio::bell();
+        // note = new wyaudio::Note();
+
+        mPlaying = 0.0f;
     }
 
     void setInstrument(wyaudio::InstrumentType it)
     {
-        instrumentType = it;
+        instType = it;
     }
 
-    void speak(wyaudio::MusicNote note)
+    void noteOn(wyaudio::MusicNote note)
     {
-        WY_Audio::speak(note);
-
-        if (!ih->env.bNoteOn)
-            ih->env.noteOn();
-
-        if (!ib->env.bNoteOn)
-            ib->env.noteOn();
+        mNote = note;
+        mPlaying = 1.f;
     }
 
-    void silence()
+    virtual void noteOff()
     {
-        WY_Audio::silence();
-
-        if (ih->env.bNoteOn)
-            ih->env.noteOff();
-
-        if (ib->env.bNoteOn)
-            ib->env.noteOff();
+        mPlaying = 0.f;
     }
 
-    std::string getInstrumentName()
+    void playNote(wyaudio::MusicNote k, bool bNoteOn)
     {
-        switch (instrumentType)
+
+        // note.id = (wyaudio::MusicNote)(k);
+        // note.on = dTime;
+        // note.active = true;
+
+        return;
+
+        auto noteFound = std::find_if(vecNotes.begin(), vecNotes.end(), [&k](wyaudio::Note const &item) { return item.id == k; });
+
+        if (noteFound == vecNotes.end())
         {
-        case wyaudio::INS_HARMONICA:
-            return ih->name;
+            // Note not found in vector
 
-        case wyaudio::INS_BELL:
-            return ib->name;
+            if (bNoteOn)
+            {
+                // Key has been pressed so create a new note
+                wyaudio::Note n;
+                n.id = k;
+                n.on = dTime;
+                n.channel = 1;
+                n.active = true;
 
-        default:
-            return "Unknown";
+                // Add note to vector
+                vecNotes.emplace_back(n);
+            }
+            else
+            {
+                // Note not in vector, but key has been released...
+                // ...nothing to do
+            }
         }
+        else
+        {
+            // Note exists in vector
+            if (!bNoteOn)
+            {
+                // Key is still held, so do nothing
+                if (noteFound->off > noteFound->on)
+                {
+                    // Key has been pressed again during release phase
+                    noteFound->on = dTime;
+                    noteFound->active = true;
+                }
+            }
+            else
+            {
+                // Key has been released, so switch off
+                if (noteFound->off < noteFound->on)
+                {
+                    noteFound->off = dTime;
+                }
+            }
+        }
+
+        // printf("\nNotes: %d", vecNotes.size());
     }
 
     double getAudioSample()
     {
-        switch (instrumentType)
-        {
-        case wyaudio::INS_HARMONICA:
-            return ih->sound(dTime, getNote());
+        double res = wyaudio::osc(dTime, wyaudio::scale(mNote, mOctave));
 
-        case wyaudio::INS_BELL:
-            return ib->sound(dTime, getNote());
+        // printf("\nsample: %f", res);
 
-        default:
-            return 0.0;
-        }
+        return res;
+
+        // printf("\ngetAudioSample: %f, %d", dTime, note);
+
+        // double dMixedOutput = 0.0;
+
+        // for (auto &n : vecNotes)
+        // {
+        //     bool bNoteFinished = false;
+        //     double dSound = 0.0;
+
+        //     if (n.channel == 2)
+        //         dSound = instBell.speak(dTime, n, bNoteFinished);
+        //     if (n.channel == 1)
+        //         dSound = instHarm.speak(dTime, n, bNoteFinished) * 0.5;
+
+        //     dMixedOutput += dSound;
+
+        //     if (bNoteFinished && n.off > n.on)
+        //         n.active = false;
+        // }
+
+        // safe_remove<std::vector<wyaudio::Note>>(vecNotes, [](wyaudio::Note const &item) { return item.active; });
+
+        // return dMixedOutput;
     }
 };
 
@@ -111,40 +185,33 @@ public:
     {
         // audio settings
 
-        if (keyboard->isKeyPressed(SDLK_q))
+        if (keyboard->isKeyPressed('q'))
         {
             audio->mSampleRate += 1000;
         }
-        else if (keyboard->isKeyPressed(SDLK_a))
+        else if (keyboard->isKeyPressed('a'))
         {
             audio->mSampleRate -= 1000;
         }
-        // else if (keyboard->isKeyPressed(SDLK_w))
-        // {
-        //     audio->mSampleSize *= 2;
-        // }
-        // else if (keyboard->isKeyPressed(SDLK_s))
-        // {
-        //     audio->mSampleSize /= 2;
-        // }
-        else if (keyboard->isKeyPressed(SDLK_e))
+        else if (keyboard->isKeyPressed('e'))
         {
             audio->mAmplitude += 100;
         }
-        else if (keyboard->isKeyPressed(SDLK_d))
+        else if (keyboard->isKeyPressed('d'))
         {
             audio->mAmplitude -= 100;
         }
 
         // instrument settings
 
-        if (keyboard->isKeyPressed(SDLK_1))
+        for (int k = 0; k < 4; k++)
         {
-            audio->setInstrument(wyaudio::INS_HARMONICA);
-        }
-        else if (keyboard->isKeyPressed(SDLK_2))
-        {
-            audio->setInstrument(wyaudio::INS_BELL);
+            short keyCode = (unsigned char)("1234"[k]);
+
+            if (keyboard->isKeyPressed(keyCode))
+            {
+                audio->setInstrument((wyaudio::InstrumentType)k);
+            }
         }
 
         // music octave
@@ -160,57 +227,21 @@ public:
 
         // music notes
 
-        if (keyboard->isKeyDown(SDLK_z))
+        for (int k = 0; k < 16; k++)
         {
-            audio->speak(wyaudio::NOTE_A);
-        }
-        else if (keyboard->isKeyDown(SDLK_s))
-        {
-            audio->speak(wyaudio::NOTE_AS);
-        }
-        else if (keyboard->isKeyDown(SDLK_x))
-        {
-            audio->speak(wyaudio::NOTE_B);
-        }
-        else if (keyboard->isKeyDown(SDLK_c))
-        {
-            audio->speak(wyaudio::NOTE_C);
-        }
-        else if (keyboard->isKeyDown(SDLK_f))
-        {
-            audio->speak(wyaudio::NOTE_CS);
-        }
-        else if (keyboard->isKeyDown(SDLK_v))
-        {
-            audio->speak(wyaudio::NOTE_D);
-        }
-        else if (keyboard->isKeyDown(SDLK_g))
-        {
-            audio->speak(wyaudio::NOTE_DS);
-        }
-        else if (keyboard->isKeyDown(SDLK_b))
-        {
-            audio->speak(wyaudio::NOTE_E);
-        }
-        else if (keyboard->isKeyDown(SDLK_n))
-        {
-            audio->speak(wyaudio::NOTE_F);
-        }
-        else if (keyboard->isKeyDown(SDLK_j))
-        {
-            audio->speak(wyaudio::NOTE_FS);
-        }
-        else if (keyboard->isKeyDown(SDLK_m))
-        {
-            audio->speak(wyaudio::NOTE_G);
-        }
-        else if (keyboard->isKeyDown(SDLK_k))
-        {
-            audio->speak(wyaudio::NOTE_GS);
-        }
-        else
-        {
-            audio->silence();
+            // assume index 0 == C
+            short keyCode = (unsigned char)("zsxcfvgbnjmk,l./"[k]);
+
+            if (keyboard->isKeyDown(keyCode))
+            {
+                // printf("\ndown: %d", keyCode);
+                audio->noteOn((wyaudio::MusicNote)k);
+            }
+            else if (keyboard->isKeyUp(keyCode))
+            {
+                // audio->noteOff((wyaudio::MusicNote)k);
+                audio->noteOff();
+            }
         }
     }
 
@@ -230,7 +261,7 @@ public:
         std::string t10 = std::to_string(audio->mChannels);
 
         std::string s1 = "\n\nInstrument : ";
-        std::string s2 = audio->getInstrumentName();
+        std::string s2 = wyaudio::getInstrumentName(audio->instType);
         std::string s3 = "\nOctave     : ";
         std::string s4 = std::to_string(audio->mOctave);
 
