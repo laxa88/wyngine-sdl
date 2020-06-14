@@ -21,6 +21,7 @@ namespace wyaudio
             dReleaseTime = 200.0;
         }
 
+        // Returns amplitude value between 0.0 to 1.0
         double getAmplitude(const double dTime, const double dTimeOn, const double dTimeOff)
         {
             double dAmplitude = 0.0;
