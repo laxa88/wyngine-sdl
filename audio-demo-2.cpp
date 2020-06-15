@@ -25,13 +25,16 @@ public:
     std::vector<wyaudio::Note> vecNotes;
     SDL_mutex *muxNotes;
 
+    wyaudio::InstrumentType instrument;
     wyaudio::bell instBell;
     wyaudio::harmonica instHarm;
     wyaudio::square instSquare;
+    wyaudio::wave instWave;
 
     GameAudio() : wyaudio::WY_Audio(44100, 1024, 1, 1000)
     {
         muxNotes = SDL_CreateMutex();
+        instrument = wyaudio::INS_HARMONICA;
     }
 
     ~GameAudio()
@@ -42,8 +45,14 @@ public:
         delete &instBell;
         delete &instHarm;
         delete &instSquare;
+        delete &instWave;
 
         SDL_DestroyMutex(muxNotes);
+    }
+
+    void setInstrument(wyaudio::InstrumentType ins)
+    {
+        instrument = ins;
     }
 
     void playNote(wyaudio::MusicNote k, bool bNoteOn)
@@ -64,7 +73,7 @@ public:
                 n.id = k;
                 n.octave = mOctave;
                 n.on = dTime;
-                n.channel = 1;
+                n.channel = instrument;
                 n.active = true;
 
                 // Add note to vector
@@ -114,12 +123,25 @@ public:
             bool bNoteFinished = false;
             double dSound = 0.0;
 
-            if (n.channel == 2)
-                dSound = instBell.speak(dTime, n, bNoteFinished);
-            else if (n.channel == 1)
+            // dSound = instHarm.speak(dTime, n, bNoteFinished);
+            switch (n.channel)
+            {
+            case wyaudio::INS_HARMONICA:
                 dSound = instHarm.speak(dTime, n, bNoteFinished);
-            else
+                break;
+            case wyaudio::INS_BELL:
+                dSound = instBell.speak(dTime, n, bNoteFinished);
+                break;
+            case wyaudio::INS_SQUARE:
                 dSound = instSquare.speak(dTime, n, bNoteFinished);
+                break;
+            case wyaudio::INS_WAVE:
+                dSound = instWave.speak(dTime, n, bNoteFinished);
+                break;
+            default:
+                dSound = 0.0;
+                break;
+            }
 
             dMixedOutput += dSound;
 
@@ -191,6 +213,18 @@ public:
             audio->mAmplitude -= 100;
         }
 
+        // instruments
+
+        for (int k = 0; k < 4; k++)
+        {
+            short keyCode = (unsigned char)("1234"[k]);
+
+            if (keyboard->isKeyPressed(keyCode))
+            {
+                audio->setInstrument((wyaudio::InstrumentType)k);
+            }
+        }
+
         // music octave
 
         if (keyboard->isKeyPressed(SDLK_UP))
@@ -235,11 +269,13 @@ public:
         std::string t10 = std::to_string(audio->mChannels);
 
         std::string s1 = "\n\nInstrument : ";
-        std::string s2 = std::to_string(audio->vecNotes.size()); //wyaudio::getInstrumentName(audio->instType);
-        std::string s3 = "\nOctave     : ";
-        std::string s4 = std::to_string(audio->mOctave);
+        std::string s2 = wyaudio::getInstrumentName(audio->instrument);
+        std::string s3 = "\nNotes      : ";
+        std::string s4 = std::to_string(audio->vecNotes.size());
+        std::string s5 = "\nOctave     : ";
+        std::string s6 = std::to_string(audio->mOctave);
 
-        mFont->print(mRenderer, t1 + t2 + t3 + t4 + t4a + t4b + t5 + t6 + t7 + t8 + t9 + t10 + s1 + s2 + s3 + s4);
+        mFont->print(mRenderer, t1 + t2 + t3 + t4 + t4a + t4b + t5 + t6 + t7 + t8 + t9 + t10 + s1 + s2 + s3 + s4 + s5 + s6);
     }
 };
 

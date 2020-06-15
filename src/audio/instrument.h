@@ -82,8 +82,8 @@ namespace wyaudio
 
     enum InstrumentType
     {
-        WAV_SQUARE,
-        WAV_WAVE,
+        INS_SQUARE,
+        INS_WAVE,
         INS_HARMONICA,
         INS_BELL
     };
@@ -92,10 +92,10 @@ namespace wyaudio
     {
         switch (t)
         {
-        case WAV_SQUARE:
+        case INS_SQUARE:
             return "Square";
-        case WAV_WAVE:
-            return "Wave";
+        case INS_WAVE:
+            return "Sine wave";
         case INS_HARMONICA:
             return "Harmonica";
         case INS_BELL:
