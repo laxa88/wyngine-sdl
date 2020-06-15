@@ -95,6 +95,7 @@ public:
                 {
                     // Key has been pressed again during release phase
                     noteFound->on = dTime;
+                    noteFound->octave = mOctave;
                     noteFound->active = true;
                 }
             }
