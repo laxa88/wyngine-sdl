@@ -118,11 +118,11 @@ namespace wyaudio
         {
             dVolume = 1.0;
 
-            env.dAttackTime = 0.0;
+            env.dAttackTime = 0.001;
             env.dDecayTime = 0.0;
             env.dStartAmplitude = 1.0;
             env.dSustainAmplitude = 1.0;
-            env.dReleaseTime = 0.0;
+            env.dReleaseTime = 0.001;
         }
 
         double speak(const double dTime, Note n, bool &bNoteFinished)
@@ -172,11 +172,11 @@ namespace wyaudio
         {
             dVolume = 1.0;
 
-            env.dAttackTime = 5.0;
-            env.dDecayTime = 1000.0;
+            env.dAttackTime = 0.001;
+            env.dDecayTime = 1.0;
             env.dStartAmplitude = 1.0;
             env.dSustainAmplitude = 0.0;
-            env.dReleaseTime = 1000.0;
+            env.dReleaseTime = 1.0;
         }
 
         double speak(const double dTime, Note n, bool &bNoteFinished)
