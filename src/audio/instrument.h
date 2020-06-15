@@ -112,6 +112,32 @@ namespace wyaudio
         virtual double speak(const double dTime, Note n, bool &bNoteFinished) = 0;
     };
 
+    struct wave : public Instrument
+    {
+        wave()
+        {
+            dVolume = 1.0;
+
+            env.dAttackTime = 0.001;
+            env.dDecayTime = 0.0;
+            env.dStartAmplitude = 1.0;
+            env.dSustainAmplitude = 1.0;
+            env.dReleaseTime = 0.001;
+        }
+
+        double speak(const double dTime, Note n, bool &bNoteFinished)
+        {
+            double dAmplitude = env.getAmplitude(dTime, n.on, n.off);
+
+            if (dAmplitude <= 0.0)
+                bNoteFinished = true;
+
+            double dSound = osc(n.on - dTime, scale(n.id, n.octave), OSC_SINE);
+
+            return dAmplitude * dSound * dVolume;
+        }
+    };
+
     struct square : public Instrument
     {
         square()
