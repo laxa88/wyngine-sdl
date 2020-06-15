@@ -141,14 +141,14 @@ namespace wyaudio
             Sint16 *buffer = (Sint16 *)stream;
 
             /**
-         * stream length is (sampleSize * channels * byte format).
-         *
-         * e.g.
-         * sampleSize = 1024
-         * channels = 2
-         * audioFormat = AUDIO_S16
-         * streamLen = 1024 * 2 * 2 (S16 = 2 bytes) = 4096
-         */
+             * stream length is (sampleSize * channels * byte format).
+             *
+             * e.g.
+             * sampleSize = 1024
+             * channels = 2
+             * audioFormat = AUDIO_S16
+             * streamLen = 1024 * 2 * 2 (S16 = 2 bytes) = 4096
+             */
             int bufferLength = streamLen / 2; // 2 bytes per sample for AUDIO_S16SYS
 
             double dTimeDelta = 1.0 / (double)mSampleRate;

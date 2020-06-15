@@ -1,6 +1,6 @@
 #include <vector>
 #include <algorithm>
-#include <mutex>
+#include <SDL2/SDL.h>
 
 #include "src/wyngine.h"
 #include "src/font.h"
@@ -23,46 +23,33 @@ class GameAudio : public wyaudio::WY_Audio
 {
 public:
     std::vector<wyaudio::Note> vecNotes;
-    wyaudio::InstrumentType instType;
+    SDL_mutex *muxNotes;
+
     wyaudio::bell instBell;
     wyaudio::harmonica instHarm;
     wyaudio::square instSquare;
 
-    wyaudio::Note note;
-    wyaudio::MusicNote mNote;
-    double mPlaying;
-
     GameAudio() : wyaudio::WY_Audio(44100, 1024, 1, 1000)
     {
-        // note = new wyaudio::Note();
-
-        mPlaying = 0.0f;
+        muxNotes = SDL_CreateMutex();
     }
 
-    void setInstrument(wyaudio::InstrumentType it)
+    ~GameAudio()
     {
-        instType = it;
-    }
+        vecNotes.clear();
+        delete &vecNotes;
 
-    void noteOn(wyaudio::MusicNote note)
-    {
-        mNote = note;
-        mPlaying = 1.f;
-    }
+        delete &instBell;
+        delete &instHarm;
+        delete &instSquare;
 
-    virtual void noteOff()
-    {
-        mPlaying = 0.f;
+        SDL_DestroyMutex(muxNotes);
     }
 
     void playNote(wyaudio::MusicNote k, bool bNoteOn)
     {
-
-        // note.id = (wyaudio::MusicNote)(k);
-        // note.on = dTime;
-        // note.active = true;
-
-        return;
+        if (SDL_LockMutex(muxNotes) != 0)
+            return;
 
         auto noteFound = std::find_if(vecNotes.begin(), vecNotes.end(), [&k](wyaudio::Note const &item) { return item.id == k; });
 
@@ -75,6 +62,7 @@ public:
                 // Key has been pressed so create a new note
                 wyaudio::Note n;
                 n.id = k;
+                n.octave = mOctave;
                 n.on = dTime;
                 n.channel = 1;
                 n.active = true;
@@ -91,7 +79,7 @@ public:
         else
         {
             // Note exists in vector
-            if (!bNoteOn)
+            if (bNoteOn)
             {
                 // Key is still held, so do nothing
                 if (noteFound->off > noteFound->on)
@@ -111,40 +99,41 @@ public:
             }
         }
 
-        // printf("\nNotes: %d", vecNotes.size());
+        SDL_UnlockMutex(muxNotes);
     }
 
     double getAudioSample()
     {
-        double res = wyaudio::osc(dTime, wyaudio::scale(mNote, mOctave));
+        if (SDL_LockMutex(muxNotes) != 0)
+            return 0.0;
 
-        // printf("\nsample: %f", res);
+        double dMixedOutput = 0.0;
 
-        return res;
+        for (auto &n : vecNotes)
+        {
+            bool bNoteFinished = false;
+            double dSound = 0.0;
 
-        // printf("\ngetAudioSample: %f, %d", dTime, note);
+            if (n.channel == 2)
+                dSound = instBell.speak(dTime, n, bNoteFinished);
+            else if (n.channel == 1)
+                dSound = instHarm.speak(dTime, n, bNoteFinished);
+            else
+                dSound = instSquare.speak(dTime, n, bNoteFinished);
 
-        // double dMixedOutput = 0.0;
+            dMixedOutput += dSound;
 
-        // for (auto &n : vecNotes)
-        // {
-        //     bool bNoteFinished = false;
-        //     double dSound = 0.0;
+            if (bNoteFinished && n.off >= n.on)
+            {
+                n.active = false;
+            }
+        }
 
-        //     if (n.channel == 2)
-        //         dSound = instBell.speak(dTime, n, bNoteFinished);
-        //     if (n.channel == 1)
-        //         dSound = instHarm.speak(dTime, n, bNoteFinished) * 0.5;
+        safe_remove<std::vector<wyaudio::Note>>(vecNotes, [](wyaudio::Note const &item) { return item.active; });
 
-        //     dMixedOutput += dSound;
+        SDL_UnlockMutex(muxNotes);
 
-        //     if (bNoteFinished && n.off > n.on)
-        //         n.active = false;
-        // }
-
-        // safe_remove<std::vector<wyaudio::Note>>(vecNotes, [](wyaudio::Note const &item) { return item.active; });
-
-        // return dMixedOutput;
+        return dMixedOutput;
     }
 };
 
@@ -202,18 +191,6 @@ public:
             audio->mAmplitude -= 100;
         }
 
-        // instrument settings
-
-        for (int k = 0; k < 4; k++)
-        {
-            short keyCode = (unsigned char)("1234"[k]);
-
-            if (keyboard->isKeyPressed(keyCode))
-            {
-                audio->setInstrument((wyaudio::InstrumentType)k);
-            }
-        }
-
         // music octave
 
         if (keyboard->isKeyPressed(SDLK_UP))
@@ -229,18 +206,15 @@ public:
 
         for (int k = 0; k < 16; k++)
         {
-            // assume index 0 == C
             short keyCode = (unsigned char)("zsxcfvgbnjmk,l./"[k]);
 
             if (keyboard->isKeyDown(keyCode))
             {
-                // printf("\ndown: %d", keyCode);
-                audio->noteOn((wyaudio::MusicNote)k);
+                audio->playNote((wyaudio::MusicNote)k, true);
             }
             else if (keyboard->isKeyUp(keyCode))
             {
-                // audio->noteOff((wyaudio::MusicNote)k);
-                audio->noteOff();
+                audio->playNote((wyaudio::MusicNote)k, false);
             }
         }
     }
@@ -261,7 +235,7 @@ public:
         std::string t10 = std::to_string(audio->mChannels);
 
         std::string s1 = "\n\nInstrument : ";
-        std::string s2 = wyaudio::getInstrumentName(audio->instType);
+        std::string s2 = std::to_string(audio->vecNotes.size()); //wyaudio::getInstrumentName(audio->instType);
         std::string s3 = "\nOctave     : ";
         std::string s4 = std::to_string(audio->mOctave);
 
