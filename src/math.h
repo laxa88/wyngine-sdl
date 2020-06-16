@@ -4,8 +4,13 @@
 #include <emscripten.h>
 #endif
 
+#pragma once
+
+#define PI M_PI
+#define TWO_PI (2.0 * M_PI)
+
 // Returns a Uint16 number from 0 to mod.
-Uint16 random(int mod)
+Uint16 wyrandom(int mod)
 {
 #ifdef __EMSCRIPTEN__
     // Javascript returns a value from 0 to 1.

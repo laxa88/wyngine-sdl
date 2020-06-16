@@ -86,6 +86,9 @@
         "xdebug": "cpp",
         "xrefwrap": "cpp",
         "random": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "map": "cpp",
+        "xtree": "cpp",
+        "__tree": "cpp"
     }
 }

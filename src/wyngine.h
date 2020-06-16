@@ -7,7 +7,7 @@
 
 #include "timer.h"
 #include "sprite.h"
-#include "random.h"
+#include "math.h"
 #include "image.h"
 #include "keyboard.h"
 #include "io.h"
