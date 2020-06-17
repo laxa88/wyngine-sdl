@@ -94,10 +94,10 @@ public:
         delete io;
 
         SDL_DestroyRenderer(mRenderer);
-        delete mRenderer;
+        mRenderer = NULL;
 
         SDL_DestroyTexture(mTexture);
-        delete mTexture;
+        mTexture = NULL;
 
         SDL_DestroyWindow(mWindow);
         mWindow = NULL;
