@@ -6,7 +6,6 @@
 #endif
 
 #include "timer.h"
-#include "sprite.h"
 #include "math.h"
 #include "image.h"
 #include "keyboard.h"
@@ -27,7 +26,6 @@ protected:
     SDL_Window *mWindow = NULL;
     SDL_Renderer *mRenderer = NULL;
     SDL_Texture *mTexture = NULL;
-    std::vector<WY_Sprite *> spritePool;
 
     WY_Timer *timer;
     WY_Keyboard *keyboard;
@@ -95,14 +93,14 @@ public:
         delete keyboard;
         delete io;
 
+        SDL_DestroyRenderer(mRenderer);
+        delete mRenderer;
+
+        SDL_DestroyTexture(mTexture);
+        delete mTexture;
+
         SDL_DestroyWindow(mWindow);
         mWindow = NULL;
-
-        for (int i = 0; i < spritePool.size(); i++)
-        {
-            delete spritePool.at(i);
-        }
-        spritePool.clear();
 
         SDL_Quit();
     }
@@ -135,13 +133,6 @@ public:
         // Clear with magenta so we know this works
         SDL_SetRenderDrawColor(mRenderer, 0xEE, 0xEE, 0xEE, 0xFF);
         SDL_RenderClear(mRenderer);
-
-        int len = spritePool.size();
-        for (int i = 0; i < len; i++)
-        {
-            WY_Sprite *sprite = spritePool.at(i);
-            sprite->render(mRenderer, mGameW, mGameH);
-        }
 
         onRender();
 
@@ -181,33 +172,6 @@ public:
             gameLoop();
         }
 #endif
-    }
-
-    void addSprite(WY_Sprite *sprite, bool activate)
-    {
-        spritePool.push_back(sprite);
-        sprite->activate();
-    }
-
-    void addSprite(WY_Sprite *sprite)
-    {
-        addSprite(sprite, false);
-    }
-
-    // Returns an inactive sprite. If non available, will add to pool before returning.
-    WY_Sprite *getAvailableSprite()
-    {
-        for (int i = 0; i < spritePool.size(); i++)
-        {
-            if (!spritePool.at(i)->getActive())
-            {
-                return spritePool.at(i);
-            }
-        }
-
-        WY_Sprite *newSprite = new WY_Sprite();
-        spritePool.push_back(newSprite);
-        return newSprite;
     }
 };
 
