@@ -2,9 +2,15 @@
 # run `mingw32-make` to invoke "all" rule
 # run `mingw32-make <rule-name>` to invoke specific rule
 
-# web release build (for size)
-# emcc main.c -O3 -s USE_SDL=2 -o bin-js/webgame.html
-# emcc audio-demo-2.cpp -O3 --closure 1 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=["png"] --preload-file assets -o bin-js/webgame.html
+# Basic web release build (for size)
+# emcc midi-demo.cpp -O3 -s USE_SDL=2 -o bin-js/webgame.html
+
+# for optimised filesize, but it's negligible
+# emcc midi-demo.cpp -O3 --closure 1 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=["png"] --preload-file assets -o bin-js/webgame.html
+
+# Recommended:
+# - Do not use `--closure 1` when using <fstream>, it will throw method charCodeAt() not found
+# emcc midi-demo.cpp -O3 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=["png"] --preload-file assets -o bin-js/webgame.html
 
 all : \
 	midi-demo

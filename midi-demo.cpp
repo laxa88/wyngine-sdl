@@ -3,13 +3,25 @@
 #include "src/wyngine.h"
 #include "src/font.h"
 #include "src/audio/audio.h"
+#include "src/audio/midi.h"
 
 class GameAudio : public wyaudio::WY_Audio
 {
+    wyaudio::WY_MidiFile *midi;
+
 public:
     // TODO
-    GameAudio() {}
-    ~GameAudio() {}
+    GameAudio()
+    {
+        midi = new wyaudio::WY_MidiFile("assets/battle-theme-3.mid");
+        // midi = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
+        // midi = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
+    }
+
+    ~GameAudio()
+    {
+        delete midi;
+    }
 
     double getAudioSample()
     {
@@ -53,31 +65,31 @@ public:
     {
         // audio settings
 
-        if (keyboard->isKeyPressed('e'))
-        {
-            audio->mAmplitude += 100;
-        }
-        else if (keyboard->isKeyPressed('d'))
-        {
-            audio->mAmplitude -= 100;
-        }
+        // if (keyboard->isKeyPressed('e'))
+        // {
+        //     audio->mAmplitude += 100;
+        // }
+        // else if (keyboard->isKeyPressed('d'))
+        // {
+        //     audio->mAmplitude -= 100;
+        // }
 
-        // key
+        // // key
 
-        for (int k = 0; k < 4; k++)
-        {
-            short keyCode = (unsigned char)("1234"[k]);
+        // for (int k = 0; k < 4; k++)
+        // {
+        //     short keyCode = (unsigned char)("1234"[k]);
 
-            if (keyboard->isKeyPressed(keyCode))
-            {
-                // play different song
-            }
-        }
+        //     if (keyboard->isKeyPressed(keyCode))
+        //     {
+        //         // play different song
+        //     }
+        // }
 
-        if (keyboard->isKeyPressed(SDLK_SPACE))
-        {
-            // play/pause song
-        }
+        // if (keyboard->isKeyPressed(SDLK_SPACE))
+        // {
+        //     // play/pause song
+        // }
     }
 
     void onRender()
