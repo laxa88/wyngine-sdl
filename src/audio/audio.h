@@ -30,6 +30,8 @@ namespace wyaudio
         SDL_AudioDeviceID deviceId;
 
     public:
+        bool bInit = false;
+
         SDL_AudioSpec wantSpec;
         SDL_AudioSpec haveSpec;
 
@@ -62,9 +64,13 @@ namespace wyaudio
     */
         SDL_AudioFormat audioFormat = AUDIO_S16;
 
-        WY_Audio(unsigned int sampleRate = 44100, unsigned int sampleSize = 1024, unsigned int channels = 2, unsigned int amplitude = 500)
+        void init(unsigned int sampleRate = 44100, unsigned int sampleSize = 1024, unsigned int channels = 2, unsigned int amplitude = 500)
         {
-            SDL_Init(SDL_INIT_AUDIO);
+            if (SDL_Init(SDL_INIT_AUDIO) < 0)
+            {
+                printf("SDL audio could not initialize! SDL_Error: %s\n", SDL_GetError());
+                return;
+            }
 
             SDL_zero(wantSpec);
             SDL_zero(haveSpec);
@@ -90,12 +96,19 @@ namespace wyaudio
             mChannels = haveSpec.channels;
             mAmplitude = amplitude;
 
-            play();
+            bInit = true;
+        }
+
+        WY_Audio()
+        {
         }
 
         ~WY_Audio()
         {
-            SDL_CloseAudioDevice(deviceId);
+            if (deviceId > 0)
+            {
+                SDL_CloseAudioDevice(deviceId);
+            }
 
             delete &wantSpec;
             delete &haveSpec;
@@ -119,6 +132,9 @@ namespace wyaudio
 
         void play()
         {
+            if (!bInit)
+                init();
+
             SDL_PauseAudioDevice(deviceId, 0);
         }
 
