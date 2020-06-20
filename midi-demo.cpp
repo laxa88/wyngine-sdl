@@ -65,14 +65,14 @@ public:
     {
         // audio settings
 
-        // if (keyboard->isKeyPressed('e'))
-        // {
-        //     audio->mAmplitude += 100;
-        // }
-        // else if (keyboard->isKeyPressed('d'))
-        // {
-        //     audio->mAmplitude -= 100;
-        // }
+        if (keyboard->isKeyPressed('e'))
+        {
+            audio->mAmplitude += 100;
+        }
+        else if (keyboard->isKeyPressed('d'))
+        {
+            audio->mAmplitude -= 100;
+        }
 
         // // key
 
@@ -90,6 +90,12 @@ public:
         // {
         //     // play/pause song
         // }
+
+        if (keyboard->isKeyPressed(SDLK_SPACE))
+        {
+            printf("\nSTART\n");
+            audio->play();
+        }
     }
 
     void onRender()

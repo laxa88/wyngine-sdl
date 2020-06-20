@@ -53,7 +53,6 @@ namespace wyaudio
 
         // MusicNote mNote = NOTE_A;
         int mOctave = 4;
-        float mPlaying = 0.f;
 
         /**
      * Determines sampleSize format (range). Larger types = larger sample range.
@@ -128,6 +127,11 @@ namespace wyaudio
             {
                 mOctave = 1;
             }
+        }
+
+        bool isPlaying()
+        {
+            return SDL_GetAudioDeviceStatus(deviceId) == SDL_AUDIO_PLAYING;
         }
 
         void play()

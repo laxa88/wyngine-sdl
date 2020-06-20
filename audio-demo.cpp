@@ -31,7 +31,7 @@ public:
     wyaudio::square instSquare;
     wyaudio::wave instWave;
 
-    GameAudio() : wyaudio::WY_Audio(44100, 1024, 1, 1000)
+    GameAudio() : wyaudio::WY_Audio()
     {
         muxNotes = SDL_CreateMutex();
         instrument = wyaudio::INS_HARMONICA;
@@ -250,6 +250,18 @@ public:
             else if (keyboard->isKeyUp(keyCode))
             {
                 audio->playNote((wyaudio::MusicNote)k, false);
+            }
+        }
+
+        if (keyboard->isKeyPressed(SDLK_SPACE))
+        {
+            if (audio->isPlaying())
+            {
+                audio->pause();
+            }
+            else
+            {
+                audio->play();
             }
         }
     }
