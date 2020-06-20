@@ -162,21 +162,27 @@ namespace wyaudio
 
             ifs.read((char *)&n32, sizeof(Uint32));
             Uint32 nHeaderId = swap32(n32); // 4-byte char: "Mthd"
+            printf("\nnHeaderId: %x", nHeaderId);
             // printf("\nnHeaderId: %x %x %x %x\n", ((nHeaderId & 0xFF000000) >> 24), ((nHeaderId & 0xFF0000) >> 16), ((nHeaderId & 0xFF00) >> 8), ((nHeaderId & 0xFF))); // matches hex editor values
             // printf("\nnHeaderId: %c%c%c%c\n", ((nHeaderId & 0xFF000000) >> 24), ((nHeaderId & 0xFF0000) >> 16), ((nHeaderId & 0xFF00) >> 8), ((nHeaderId & 0xFF))); // outputs M T h d
             // printf("\nnHeaderId: %s\n", readStr(sizeof(Uint32)).c_str()); // outputs Mthd
+
+            // Assume len is 6 bytes, but not necessarily in the future
             ifs.read((char *)&n32, sizeof(Uint32));
             Uint32 nHeaderLen = swap32(n32);
+            printf("\nnHeaderLen: %d", nHeaderLen);
 
-            // Assume header chunk is 6 bytes, but not necessarily in the future
             ifs.read((char *)&n16, sizeof(Uint16));
             Uint16 nFormat = swap16(n16);
+            printf("\nnFormat: %d", nFormat);
+
             ifs.read((char *)&n16, sizeof(Uint16));
             Uint16 nTrackChunks = swap16(n16);
-            ifs.read((char *)&n16, sizeof(Uint16));
-            Uint16 nDivision = swap16(n16);
+            printf("\nnTrackChunks: %d", nTrackChunks);
 
-            printf("\nChunks: %d", nTrackChunks);
+            ifs.read((char *)&n16, sizeof(Uint16));
+            Uint16 nTickDiv = swap16(n16);
+            printf("\nnTickDiv: %d", nTickDiv); // usually 96
 
             // ==================================================
             // Mtrk / track chunk
@@ -184,12 +190,15 @@ namespace wyaudio
 
             for (Uint16 nChunk = 0; nChunk < nTrackChunks; nChunk++)
             {
-                printf("\n===== New track =====");
+                printf("\n===== New track %d =====", nChunk);
 
                 ifs.read((char *)&n32, sizeof(Uint32));
                 Uint32 nTrackId = swap32(n32);
+                // printf("\nnTrackId: %x", nTrackId); // 4-byte char: "Mtrk"
+
                 ifs.read((char *)&n32, sizeof(Uint32));
                 Uint32 nTrackLen = swap32(n32);
+                // printf("\nnTrackLen: %d", nTrackLen);
 
                 bool bEndOfTrack = false;
                 Uint8 nPreviousStatus = 0;
@@ -204,6 +213,8 @@ namespace wyaudio
                     nStatusTimeDelta = readVal();
                     nStatus = ifs.get();
 
+                    // If running status, backtrack fstream by 1 byte
+                    // so we can read full nStatus
                     if (nStatus < 0x80)
                     {
                         nStatus = nPreviousStatus;
@@ -328,7 +339,7 @@ namespace wyaudio
                                 printf("\nMetaPort: %d", ifs.get());
                                 break;
                             case MetaEndOfTrack:
-                                printf("\nMetaEndOfTrack");
+                                // printf("\nMetaEndOfTrack");
                                 bEndOfTrack = true;
                                 break;
                             case MetaTempo:

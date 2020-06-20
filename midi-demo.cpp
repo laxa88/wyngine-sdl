@@ -13,8 +13,8 @@ public:
     // TODO
     GameAudio()
     {
-        midi = new wyaudio::WY_MidiFile("assets/battle-theme-3.mid");
-        // midi = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
+        // midi = new wyaudio::WY_MidiFile("assets/battle-theme-3.mid");
+        midi = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
         // midi = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
     }
 
