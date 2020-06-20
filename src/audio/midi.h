@@ -113,7 +113,7 @@ namespace wyaudio
                 return false;
             }
 
-            printf("\nParsing file...");
+            printf("\nBegin parsing file...\n");
 
             auto swap32 = [](Uint32 n) {
                 return (((n >> 24) & 0xff) | ((n << 8) & 0xff0000) | ((n >> 8) & 0xff00) | ((n << 24) & 0xff000000));
@@ -156,10 +156,19 @@ namespace wyaudio
             Uint32 n32 = 0;
             Uint16 n16 = 0;
 
+            // ==================================================
+            // Mthd / header chunk
+            // ==================================================
+
             ifs.read((char *)&n32, sizeof(Uint32));
-            Uint32 nFileId = swap32(n32);
+            Uint32 nHeaderId = swap32(n32); // 4-byte char: "Mthd"
+            // printf("\nnHeaderId: %x %x %x %x\n", ((nHeaderId & 0xFF000000) >> 24), ((nHeaderId & 0xFF0000) >> 16), ((nHeaderId & 0xFF00) >> 8), ((nHeaderId & 0xFF))); // matches hex editor values
+            // printf("\nnHeaderId: %c%c%c%c\n", ((nHeaderId & 0xFF000000) >> 24), ((nHeaderId & 0xFF0000) >> 16), ((nHeaderId & 0xFF00) >> 8), ((nHeaderId & 0xFF))); // outputs M T h d
+            // printf("\nnHeaderId: %s\n", readStr(sizeof(Uint32)).c_str()); // outputs Mthd
             ifs.read((char *)&n32, sizeof(Uint32));
             Uint32 nHeaderLen = swap32(n32);
+
+            // Assume header chunk is 6 bytes, but not necessarily in the future
             ifs.read((char *)&n16, sizeof(Uint16));
             Uint16 nFormat = swap16(n16);
             ifs.read((char *)&n16, sizeof(Uint16));
@@ -168,6 +177,10 @@ namespace wyaudio
             Uint16 nDivision = swap16(n16);
 
             printf("\nChunks: %d", nTrackChunks);
+
+            // ==================================================
+            // Mtrk / track chunk
+            // ==================================================
 
             for (Uint16 nChunk = 0; nChunk < nTrackChunks; nChunk++)
             {
@@ -262,11 +275,11 @@ namespace wyaudio
                     {
                         if (nStatus == 0xF0)
                         {
-                            printf("\nSystem Exclusive Event start: %s\n", readStr(readVal()));
+                            printf("\nSystem Exclusive Event start: %s\n", readStr(readVal()).c_str());
                         }
                         if (nStatus == 0xF7)
                         {
-                            printf("\nSystem Exclusive Event end: %s\n", readStr(readVal()));
+                            printf("\nSystem Exclusive Event end: %s\n", readStr(readVal()).c_str());
                         }
                         if (nStatus == 0xFF)
                         {
@@ -280,33 +293,33 @@ namespace wyaudio
                                 printf("\nMetaSequence: %d %d", ifs.get(), ifs.get());
                                 break;
                             case MetaText:
-                                printf("\nMetaText: %s", readStr(nLen));
+                                printf("\nMetaText: %s", readStr(nLen).c_str());
                                 break;
                             case MetaCopyright:
-                                printf("\nMetaCopyright: %s", readStr(nLen));
+                                printf("\nMetaCopyright: %s", readStr(nLen).c_str());
                                 break;
                             case MetaTrackName:
                                 vecTracks[nChunk].sName = readStr(nLen);
-                                printf("\nMetaTrackName: %s", vecTracks[nChunk].sName);
+                                printf("\nMetaTrackName: %s", vecTracks[nChunk].sName.c_str());
                                 break;
                             case MetaInstrumentName:
                                 vecTracks[nChunk].sInstrument = readStr(nLen);
-                                printf("\nMetaInstrumentName: %s", vecTracks[nChunk].sInstrument);
+                                printf("\nMetaInstrumentName: %s", vecTracks[nChunk].sInstrument.c_str());
                                 break;
                             case MetaLyric:
-                                printf("\nMetaLyric: %s", readStr(nLen));
+                                printf("\nMetaLyric: %s", readStr(nLen).c_str());
                                 break;
                             case MetaMarker:
-                                printf("\nMetaMarker: %s", readStr(nLen));
+                                printf("\nMetaMarker: %s", readStr(nLen).c_str());
                                 break;
                             case MetaCuePoint:
-                                printf("\nMetaCuePoint: %s", readStr(nLen));
+                                printf("\nMetaCuePoint: %s", readStr(nLen).c_str());
                                 break;
                             case MetaProgramName:
-                                printf("\nMetaProgramName: %s", readStr(nLen));
+                                printf("\nMetaProgramName: %s", readStr(nLen).c_str());
                                 break;
                             case MetaDeviceName:
-                                printf("\nMetaDeviceName: %s", readStr(nLen));
+                                printf("\nMetaDeviceName: %s", readStr(nLen).c_str());
                                 break;
                             case MetaChannelPrefix:
                                 printf("\nMetaChannelPrefix: %d", ifs.get());
@@ -315,7 +328,7 @@ namespace wyaudio
                                 printf("\nMetaPort: %d", ifs.get());
                                 break;
                             case MetaEndOfTrack:
-                                printf("\nMetaEndOfTrack: (terminator)");
+                                printf("\nMetaEndOfTrack");
                                 bEndOfTrack = true;
                                 break;
                             case MetaTempo:
@@ -332,7 +345,7 @@ namespace wyaudio
                                 printf("\nMetaKeySignature: %d %d", ifs.get(), ifs.get());
                                 break;
                             case MetaSequencerSpecific:
-                                printf("\nMetaSequencerSpecific: %s", readStr(nLen));
+                                printf("\nMetaSequencerSpecific: %s", readStr(nLen).c_str());
                                 break;
                             default:
                                 printf("\nUnrecognized meta: %d", nType);
