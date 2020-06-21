@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "audio.h"
+
 namespace wyaudio
 {
     enum WY_MidiEventName : Uint8
@@ -103,6 +105,7 @@ namespace wyaudio
             loadFile(file);
         }
 
+        // Loads and parses MIDI file into readable events for MidiPlayer
         bool loadFile(const char *file)
         {
             std::ifstream ifs;
@@ -113,7 +116,7 @@ namespace wyaudio
                 return false;
             }
 
-            printf("\nBegin parsing file...\n");
+            printf("\nBegin parsing file: %s\n", file);
 
             auto swap32 = [](Uint32 n) {
                 return (((n >> 24) & 0xff) | ((n << 8) & 0xff0000) | ((n >> 8) & 0xff00) | ((n << 24) & 0xff000000));
@@ -372,9 +375,38 @@ namespace wyaudio
             }
 
             // End printf with \n, otherwise JS will not print last line
-            printf("\nParse complete.\n");
+            printf("\nFile loaded: %s\n", file);
 
             return true;
+        }
+
+        // Converts MIDI events into playable audio samples
+        void convertToWAV()
+        {
+            // TODO
+        }
+    };
+
+    class WY_MidiPlayer : public WY_Audio
+    {
+    protected:
+        std::vector<WY_MidiFile *> midiFiles;
+
+    public:
+        WY_MidiPlayer() {}
+
+        ~WY_MidiPlayer()
+        {
+            for (int i = 0; i < midiFiles.size(); i++)
+            {
+                delete midiFiles[i];
+            }
+            midiFiles.clear();
+        }
+
+        double getAudioSample()
+        {
+            return 0.0;
         }
     };
 } // namespace wyaudio

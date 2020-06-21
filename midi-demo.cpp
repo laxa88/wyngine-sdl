@@ -2,30 +2,21 @@
 
 #include "src/wyngine.h"
 #include "src/font.h"
-#include "src/audio/audio.h"
 #include "src/audio/midi.h"
 
-class GameAudio : public wyaudio::WY_Audio
+class GameAudio : public wyaudio::WY_MidiPlayer
 {
-    wyaudio::WY_MidiFile *midi;
-
 public:
     // TODO
     GameAudio()
     {
-        // midi = new wyaudio::WY_MidiFile("assets/battle-theme-3.mid");
-        midi = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
-        // midi = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
-    }
+        wyaudio::WY_MidiFile *midi1 = new wyaudio::WY_MidiFile("assets/battle-theme-3.mid");
+        wyaudio::WY_MidiFile *midi2 = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
+        wyaudio::WY_MidiFile *midi3 = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
 
-    ~GameAudio()
-    {
-        delete midi;
-    }
-
-    double getAudioSample()
-    {
-        return 0.0;
+        midiFiles.push_back(midi1);
+        midiFiles.push_back(midi2);
+        midiFiles.push_back(midi3);
     }
 };
 
