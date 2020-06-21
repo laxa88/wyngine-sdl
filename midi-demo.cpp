@@ -25,7 +25,7 @@ public:
 
     double getAudioSample()
     {
-        return 0;
+        return 0.0;
     }
 };
 
@@ -63,17 +63,6 @@ public:
 
     void onUpdate()
     {
-        // audio settings
-
-        if (keyboard->isKeyPressed('e'))
-        {
-            audio->mAmplitude += 100;
-        }
-        else if (keyboard->isKeyPressed('d'))
-        {
-            audio->mAmplitude -= 100;
-        }
-
         // // key
 
         // for (int k = 0; k < 4; k++)
@@ -86,14 +75,8 @@ public:
         //     }
         // }
 
-        // if (keyboard->isKeyPressed(SDLK_SPACE))
-        // {
-        //     // play/pause song
-        // }
-
         if (keyboard->isKeyPressed(SDLK_SPACE))
         {
-            printf("\nSTART\n");
             audio->play();
         }
     }
@@ -103,9 +86,9 @@ public:
         std::string t1 = "Game dTime : ";
         std::string t2 = std::to_string(timer->getTimeSinceStart());
         std::string t3 = "\nAudio dTime : ";
-        std::string t4 = std::to_string(audio->dTime);
+        std::string t4 = std::to_string(audio->getDTime());
         std::string t5 = "\nAmplitude (volume) : ";
-        std::string t6 = std::to_string(audio->mAmplitude);
+        std::string t6 = std::to_string(audio->getAmplitude());
 
         // std::string s1 = "\n\nSong                     : ";
         // std::string s2 = wyaudio::getInstrumentName(audio->instrument);
