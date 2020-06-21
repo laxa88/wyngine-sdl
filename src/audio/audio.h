@@ -34,20 +34,20 @@ namespace wyaudio
         bool bInit = false;
 
         // Frequency, a.k.a. number of samples per second. Higher value = higher accuracy
-        int mSampleRate; // e.g. 44100
+        int nSampleRate; // e.g. 44100
 
         // Current sample (phase) position
         // Reference: https://en.wikipedia.org/wiki/Phase_(waves)
         double dTime = 0.0;
 
         // Buffer size for samples. More samples = better accuracy, but slower performance.
-        int mSampleSize;
+        int nSampleSize;
 
         // Number of channels, e.g. mono = 1, stereo = 2, etc.
-        int mChannels;
+        int nChannels;
 
         // Volume. 0 = silence, 1000 = normal volume
-        int mAmplitude;
+        int nAmplitude;
 
         /**
          * Determines sampleSize format (range). Larger types = larger sample range.
@@ -91,22 +91,22 @@ namespace wyaudio
 
         int getAmplitude()
         {
-            return mAmplitude;
+            return nAmplitude;
         }
 
         int getSampleRate()
         {
-            return mSampleRate;
+            return nSampleRate;
         }
 
         int getSampleSize()
         {
-            return mSampleSize;
+            return nSampleSize;
         }
 
         int getChannelLen()
         {
-            return mChannels;
+            return nChannels;
         }
 
         double getDTime()
@@ -121,13 +121,13 @@ namespace wyaudio
         // Increase or decrease amplitude
         void changeAmplitude(int vol)
         {
-            mAmplitude += vol;
+            nAmplitude += vol;
         }
 
         // Increase or decrease frequency (pitch)
         void changeSampleRate(int rate)
         {
-            mSampleRate += rate;
+            nSampleRate += rate;
         }
 
         // ==================================================
@@ -163,10 +163,10 @@ namespace wyaudio
                 SDL_Log("\nFailed to get the desired AudioSpec");
             }
 
-            mSampleRate = haveSpec.freq;
-            mSampleSize = haveSpec.size / haveSpec.channels;
-            mChannels = haveSpec.channels;
-            mAmplitude = amplitude;
+            nSampleRate = haveSpec.freq;
+            nSampleSize = haveSpec.size / haveSpec.channels;
+            nChannels = haveSpec.channels;
+            nAmplitude = amplitude;
 
             bInit = true;
         }
@@ -201,11 +201,11 @@ namespace wyaudio
              */
             int bufferLength = streamLen / 2; // 2 bytes per sample for AUDIO_S16SYS
 
-            double dTimeDelta = 1.0 / (double)mSampleRate;
+            double dTimeDelta = 1.0 / (double)nSampleRate;
 
             for (int i = 0; i < bufferLength; i++)
             {
-                buffer[i] = mAmplitude * getAudioSample();
+                buffer[i] = nAmplitude * getAudioSample();
 
                 dTime += dTimeDelta;
 
