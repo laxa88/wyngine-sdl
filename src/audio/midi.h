@@ -298,11 +298,11 @@ namespace wyaudio
                         {
                             printf("\nSystem Exclusive Event start: %s\n", readStr(readVal()).c_str());
                         }
-                        if (nStatus == 0xF7)
+                        else if (nStatus == 0xF7)
                         {
                             printf("\nSystem Exclusive Event end: %s\n", readStr(readVal()).c_str());
                         }
-                        if (nStatus == 0xFF)
+                        else if (nStatus == 0xFF)
                         {
                             // Meta message
                             Uint8 nType = ifs.get();
@@ -349,7 +349,6 @@ namespace wyaudio
                                 printf("\nMetaPort: %d", ifs.get());
                                 break;
                             case MetaEndOfTrack:
-                                // printf("\nMetaEndOfTrack");
                                 bEndOfTrack = true;
                                 break;
                             case MetaTempo:
