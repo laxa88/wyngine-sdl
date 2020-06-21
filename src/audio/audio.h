@@ -28,15 +28,13 @@ namespace wyaudio
     class WY_Audio
     {
         SDL_AudioDeviceID deviceId;
-
-    public:
-        bool bInit = false;
-
         SDL_AudioSpec wantSpec;
         SDL_AudioSpec haveSpec;
 
+        bool bInit = false;
+
         // Frequency, a.k.a. number of samples per second. Higher value = higher accuracy
-        int mSampleRate;
+        int mSampleRate; // e.g. 44100
 
         // Current sample (phase) position
         // Reference: https://en.wikipedia.org/wiki/Phase_(waves)
@@ -51,23 +49,96 @@ namespace wyaudio
         // Volume. 0 = silence, 1000 = normal volume
         int mAmplitude;
 
-        // MusicNote mNote = NOTE_A;
-        int mOctave = 4;
-
         /**
-     * Determines sampleSize format (range). Larger types = larger sample range.
-     * If the format is too large, you may end up hearing nothing because the
-     * buffer data's values are all too low to be audible. The inverse is also true.
-     *
-     * i.e.: Lower format gives off a DOS-like sound, higher format is smoother and modern.
-    */
+         * Determines sampleSize format (range). Larger types = larger sample range.
+         * If the format is too large, you may end up hearing nothing because the
+         * buffer data's values are all too low to be audible. The inverse is also true.
+         *
+         * i.e.: Lower format gives off a DOS-like sound, higher format is smoother and modern.
+        */
         SDL_AudioFormat audioFormat = AUDIO_S16;
+
+    protected:
+        // Overwrite this to create your own audio sample.
+        // Do not printf/log here as it will be very slow;
+        // It runs at a high frequency, e.g. ~44100 per frame
+        // - Runs in audio thread, use mutex when possible.
+        // - Expects a return value between -1 to 1.
+        virtual double getAudioSample() = 0;
+
+    public:
+        WY_Audio() {}
+
+        ~WY_Audio()
+        {
+            if (deviceId > 0)
+            {
+                SDL_CloseAudioDevice(deviceId);
+            }
+
+            delete &wantSpec;
+            delete &haveSpec;
+        }
+
+        // ==================================================
+        // Getters
+        // ==================================================
+
+        bool isPlaying()
+        {
+            return SDL_GetAudioDeviceStatus(deviceId) == SDL_AUDIO_PLAYING;
+        }
+
+        int getAmplitude()
+        {
+            return mAmplitude;
+        }
+
+        int getSampleRate()
+        {
+            return mSampleRate;
+        }
+
+        int getSampleSize()
+        {
+            return mSampleSize;
+        }
+
+        int getChannelLen()
+        {
+            return mChannels;
+        }
+
+        double getDTime()
+        {
+            return dTime;
+        }
+
+        // ==================================================
+        // Setters
+        // ==================================================
+
+        // Increase or decrease amplitude
+        void changeAmplitude(int vol)
+        {
+            mAmplitude += vol;
+        }
+
+        // Increase or decrease frequency (pitch)
+        void changeSampleRate(int rate)
+        {
+            mSampleRate += rate;
+        }
+
+        // ==================================================
+        // Methods
+        // ==================================================
 
         void init(unsigned int sampleRate = 44100, unsigned int sampleSize = 1024, unsigned int channels = 2, unsigned int amplitude = 500)
         {
             if (SDL_Init(SDL_INIT_AUDIO) < 0)
             {
-                printf("SDL audio could not initialize! SDL_Error: %s\n", SDL_GetError());
+                SDL_Log("SDL audio could not initialize! SDL_Error: %s\n", SDL_GetError());
                 return;
             }
 
@@ -84,11 +155,13 @@ namespace wyaudio
             deviceId = SDL_OpenAudioDevice(NULL, 0, &wantSpec, &haveSpec, 0);
             if (deviceId == 0)
             {
-                printf("\nFailed to open audio: %s\n", SDL_GetError());
+                SDL_Log("\nFailed to open audio: %s\n", SDL_GetError());
                 return;
             }
             if (wantSpec.format != haveSpec.format)
-                printf("\nFailed to get the desired AudioSpec");
+            {
+                SDL_Log("\nFailed to get the desired AudioSpec");
+            }
 
             mSampleRate = haveSpec.freq;
             mSampleSize = haveSpec.size / haveSpec.channels;
@@ -98,42 +171,7 @@ namespace wyaudio
             bInit = true;
         }
 
-        WY_Audio()
-        {
-        }
-
-        ~WY_Audio()
-        {
-            if (deviceId > 0)
-            {
-                SDL_CloseAudioDevice(deviceId);
-            }
-
-            delete &wantSpec;
-            delete &haveSpec;
-        }
-
-        void increaseOctave()
-        {
-            if (++mOctave > 7)
-            {
-                mOctave = 7;
-            }
-        }
-
-        void decreaseOctave()
-        {
-            if (--mOctave < 1)
-            {
-                mOctave = 1;
-            }
-        }
-
-        bool isPlaying()
-        {
-            return SDL_GetAudioDeviceStatus(deviceId) == SDL_AUDIO_PLAYING;
-        }
-
+        // Plays audio. Will also init if called for the first time.
         void play()
         {
             if (!bInit)
@@ -147,17 +185,9 @@ namespace wyaudio
             SDL_PauseAudioDevice(deviceId, 1);
         }
 
-        // Overwrite this to create your own audio sample.
-        // Do not printf here as it will be very slow;
-        // It runs at a high frequency, e.g. ~44100 per frame
-        // - Runs in audio thread, use mutex when possible.
-        // - Expects a return value between -1 to 1.
-        virtual double getAudioSample() = 0;
-
-        virtual void updateAudio(Uint8 *stream, int streamLen)
+        // Used by audioCallback. Do not call or override this.
+        void updateAudio(Uint8 *stream, int streamLen)
         {
-            // printf("\nsample: %d, %d", mSampleIndex, streamLen);
-
             Sint16 *buffer = (Sint16 *)stream;
 
             /**
@@ -188,6 +218,8 @@ namespace wyaudio
         }
     };
 
+    // SDL audio callback does not work in class methods; Only works via C method,
+    // hence the need of intermediary audioCallback method.
     void audioCallback(void *user_data, Uint8 *raw_buffer, int bytes)
     {
         static_cast<WY_Audio *>(user_data)->updateAudio(raw_buffer, bytes);

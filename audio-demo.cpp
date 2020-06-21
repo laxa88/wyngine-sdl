@@ -31,6 +31,26 @@ public:
     wyaudio::square instSquare;
     wyaudio::wave instWave;
 
+    int mOctave = 4;
+
+    void increaseOctave()
+    {
+        mOctave++;
+        if (mOctave > 7)
+        {
+            mOctave = 7;
+        }
+    }
+
+    void decreaseOctave()
+    {
+        mOctave--;
+        if (mOctave < 1)
+        {
+            mOctave = 1;
+        }
+    }
+
     GameAudio() : wyaudio::WY_Audio()
     {
         muxNotes = SDL_CreateMutex();
@@ -72,7 +92,7 @@ public:
                 wyaudio::Note n;
                 n.id = k;
                 n.octave = mOctave;
-                n.on = dTime;
+                n.on = getDTime();
                 n.channel = instrument;
                 n.active = true;
 
@@ -94,7 +114,7 @@ public:
                 if (noteFound->off > noteFound->on)
                 {
                     // Key has been pressed again during release phase
-                    noteFound->on = dTime;
+                    noteFound->on = getDTime();
                     noteFound->octave = mOctave;
                     noteFound->active = true;
                 }
@@ -104,7 +124,7 @@ public:
                 // Key has been released, so switch off
                 if (noteFound->off < noteFound->on)
                 {
-                    noteFound->off = dTime;
+                    noteFound->off = getDTime();
                 }
             }
         }
@@ -128,16 +148,16 @@ public:
             switch (n.channel)
             {
             case wyaudio::INS_HARMONICA:
-                dSound = instHarm.speak(dTime, n, bNoteFinished);
+                dSound = instHarm.speak(getDTime(), n, bNoteFinished);
                 break;
             case wyaudio::INS_BELL:
-                dSound = instBell.speak(dTime, n, bNoteFinished);
+                dSound = instBell.speak(getDTime(), n, bNoteFinished);
                 break;
             case wyaudio::INS_SQUARE:
-                dSound = instSquare.speak(dTime, n, bNoteFinished);
+                dSound = instSquare.speak(getDTime(), n, bNoteFinished);
                 break;
             case wyaudio::INS_WAVE:
-                dSound = instWave.speak(dTime, n, bNoteFinished);
+                dSound = instWave.speak(getDTime(), n, bNoteFinished);
                 break;
             default:
                 dSound = 0.0;
@@ -199,19 +219,19 @@ public:
 
         if (keyboard->isKeyPressed('q'))
         {
-            audio->mSampleRate += 1000;
+            audio->changeSampleRate(1000);
         }
         else if (keyboard->isKeyPressed('a'))
         {
-            audio->mSampleRate -= 1000;
+            audio->changeSampleRate(-1000);
         }
         else if (keyboard->isKeyPressed('e'))
         {
-            audio->mAmplitude += 100;
+            audio->changeAmplitude(100);
         }
         else if (keyboard->isKeyPressed('d'))
         {
-            audio->mAmplitude -= 100;
+            audio->changeAmplitude(-100);
         }
 
         // instruments
@@ -271,15 +291,15 @@ public:
         std::string t1 = "Time elapsed        : ";
         std::string t2 = std::to_string(timer->getTimeSinceStart());
         std::string t3 = "\n\nfrequency / current sample :\n";
-        std::string t4 = std::to_string(audio->mSampleRate);
+        std::string t4 = std::to_string(audio->getSampleRate());
         std::string t4a = " / ";
-        std::string t4b = std::to_string(audio->dTime);
+        std::string t4b = std::to_string(audio->getDTime());
         std::string t5 = "\n\nSample size         : ";
-        std::string t6 = std::to_string(audio->mSampleSize);
+        std::string t6 = std::to_string(audio->getSampleSize());
         std::string t7 = "\nAmplitude (volume)  : ";
-        std::string t8 = std::to_string(audio->mAmplitude);
+        std::string t8 = std::to_string(audio->getAmplitude());
         std::string t9 = "\nChannels (speakers) : ";
-        std::string t10 = std::to_string(audio->mChannels);
+        std::string t10 = std::to_string(audio->getChannelLen());
 
         std::string s1 = "\n\nInstrument : ";
         std::string s2 = wyaudio::getInstrumentName(audio->instrument);
