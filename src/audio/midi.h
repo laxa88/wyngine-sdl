@@ -95,6 +95,7 @@ namespace wyaudio
     {
     public:
         std::vector<WY_MidiTrack> vecTracks;
+        Uint32 nTempo = 0; // 24-bit (3-byte) of microseconds-per-quarternote (not miliseconds!)
 
         WY_MidiFile()
         {
@@ -103,6 +104,12 @@ namespace wyaudio
         WY_MidiFile(const char *file)
         {
             loadFile(file);
+        }
+
+        // Returns beats per minute, based on microseconds-per-quarternote
+        int getBPM()
+        {
+            return nTempo == 0 ? 120 : (60 * 1000 * 1000) / nTempo;
         }
 
         // Loads and parses MIDI file into readable events for MidiPlayer
@@ -346,8 +353,14 @@ namespace wyaudio
                                 bEndOfTrack = true;
                                 break;
                             case MetaTempo:
-                                // TODO
-                                printf("\nMetaTempo: %d %d %d", ifs.get(), ifs.get(), ifs.get());
+                                // Initialise tempo, otherwise store it for mid-song tempo change
+                                if (nTempo == 0)
+                                {
+                                    nTempo |= ifs.get() << 16;
+                                    nTempo |= ifs.get() << 8;
+                                    nTempo |= ifs.get();
+                                }
+                                printf("\nMetaTempo: %d %d", nTempo, getBPM());
                                 break;
                             case MetaSMPTEOffset:
                                 printf("\nMetaSMPTEOffset: %d %d %d %d %d", ifs.get(), ifs.get(), ifs.get(), ifs.get(), ifs.get());
