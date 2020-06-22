@@ -296,6 +296,8 @@ namespace wyaudio
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::SystemExclusive)
                     {
+                        nPreviousStatus = 0;
+
                         if (nStatus == 0xF0)
                         {
                             printf("\nSystem Exclusive Event start: %s\n", readStr(readVal()).c_str());
