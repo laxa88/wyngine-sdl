@@ -6,6 +6,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <list>
+#include <algorithm>
 
 #include "audio.h"
 
@@ -382,6 +384,34 @@ namespace wyaudio
                     else
                     {
                         printf("\nUnrecognized status byte: %d\n", nStatus);
+                    }
+                }
+            }
+
+            for (auto &track : vecTracks)
+            {
+                Uint32 nWallTime = 0;
+                std::list<WY_MidiNote> listNotesBeingProcessed;
+
+                for (auto &event : track.vecEvents)
+                {
+                    nWallTime += event.nDeltaTick;
+
+                    if (event.event == WY_MidiEvent::Type::NoteOn)
+                    {
+                        listNotesBeingProcessed.push_back({event.nKey, event.nVelocity, nWallTime, 0});
+                    }
+
+                    if (event.event == WY_MidiEvent::Type::NoteOff)
+                    {
+                        auto note = std::find_if(listNotesBeingProcessed.begin(), listNotesBeingProcessed.end(), [&](const WY_MidiNote &n) { return n.nKey == event.nKey; });
+
+                        if (note != listNotesBeingProcessed.end())
+                        {
+                            note->nDuration = nWallTime - note->nStartTime;
+                            track.vecNotes.push_back(*note);
+                            listNotesBeingProcessed.erase(note);
+                        }
                     }
                 }
             }
