@@ -89,8 +89,8 @@ namespace wyaudio
         // Uint32 nTimeSignature; // 4-byte nn dd cc bb
         std::vector<WY_MidiEvent> vecEvents;
         std::vector<WY_MidiNote> vecNotes;
-        Uint8 nMaxNote = 64;
-        Uint8 nMinNote = 64;
+        // Uint8 nMaxNote = 64;
+        // Uint8 nMinNote = 64;
     };
 
     class WY_MidiFile
