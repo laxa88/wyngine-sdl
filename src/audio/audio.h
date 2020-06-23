@@ -27,6 +27,7 @@ namespace wyaudio
 
     class WY_Audio
     {
+    protected:
         SDL_AudioDeviceID deviceId;
         SDL_AudioSpec wantSpec;
         SDL_AudioSpec haveSpec;
@@ -58,7 +59,6 @@ namespace wyaudio
         */
         SDL_AudioFormat audioFormat = AUDIO_S16;
 
-    protected:
         // Overwrite this to create your own audio sample.
         // Do not printf/log here as it will be very slow;
         // It runs at a high frequency, e.g. ~44100 per frame
