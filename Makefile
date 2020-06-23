@@ -15,6 +15,23 @@
 all : \
 	midi-demo
 
+midi-demo2:
+	g++ -g midi-demo2.cpp \
+	src\lib\midifile\Binasc.cpp \
+	src\lib\midifile\MidiEvent.cpp \
+	src\lib\midifile\MidiEventList.cpp \
+	src\lib\midifile\Midifile.cpp \
+	src\lib\midifile\MidiMessage.cpp \
+	src\lib\midifile\Options.cpp \
+	-IC:\wy-dev\sdl2-mingw-32\include \
+	-IC:\wy-dev\SDL2_image-2.0.5\i686-w64-mingw32\include \
+	-LC:\wy-dev\sdl2-mingw-32\lib \
+	-LC:\wy-dev\sdl2-mingw-32\lib\SDL2 \
+	-LC:\wy-dev\SDL2_image-2.0.5\i686-w64-mingw32\lib \
+	-lmingw32 \
+	-lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lsetupapi -lversion \
+	-o bin\midi-demo2
+
 midi-demo:
 	g++ -g midi-demo.cpp \
 	-IC:\wy-dev\sdl2-mingw-32\include \
