@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "audio.h"
+#include "instrument.h"
 
 namespace wyaudio
 {
@@ -225,6 +226,10 @@ namespace wyaudio
                     nStatusTimeDelta = readVal();
                     nStatus = ifs.get();
 
+                    printf("\ndTime: %x, ", nStatusTimeDelta);
+                    printf(", %x", nStatus);
+                    printf(", %x", nPreviousStatus);
+
                     // If running status, backtrack fstream by 1 byte
                     // so we can read full nStatus
                     if (nStatus < 0x80)
@@ -240,6 +245,8 @@ namespace wyaudio
                         Uint8 nNoteId = ifs.get();
                         Uint8 nNoteVelocity = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::NoteOff, nNoteId, nNoteVelocity, nStatusTimeDelta});
+
+                        printf(", # %x %x", nNoteId, nNoteVelocity);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceNoteOn)
                     {
@@ -255,6 +262,8 @@ namespace wyaudio
                         {
                             vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::NoteOn, nNoteId, nNoteVelocity, nStatusTimeDelta});
                         }
+
+                        printf(", # %x %x", nNoteId, nNoteVelocity);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceAfterTouch)
                     {
@@ -263,6 +272,8 @@ namespace wyaudio
                         Uint8 nNoteId = ifs.get();
                         Uint8 nNotePressure = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
+
+                        printf(", # %x %x", nNoteId, nNotePressure);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceControlChange)
                     {
@@ -271,6 +282,8 @@ namespace wyaudio
                         Uint8 nNoteController = ifs.get(); // Channel Mode messages
                         Uint8 nNoteValue = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
+
+                        printf(", # %x %x", nNoteController, nNoteValue);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceProgramChange)
                     {
@@ -278,6 +291,8 @@ namespace wyaudio
                         Uint8 nChannel = nStatus & 0x0F;
                         Uint8 nProgram = ifs.get(); // voice, instrument, etc.
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
+
+                        printf(", # %x", nProgram);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceChannelPressure)
                     {
@@ -285,6 +300,8 @@ namespace wyaudio
                         Uint8 nChannel = nStatus & 0x0F;
                         Uint8 nPressure = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
+
+                        printf(", # %x", nPressure);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoicePitchBend)
                     {
@@ -293,6 +310,8 @@ namespace wyaudio
                         Uint8 nLsb = ifs.get();
                         Uint8 nMsb = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
+
+                        printf(", # %x %x", nLsb, nMsb);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::SystemExclusive)
                     {
@@ -300,11 +319,11 @@ namespace wyaudio
 
                         if (nStatus == 0xF0)
                         {
-                            printf("\nSystem Exclusive Event start: %s\n", readStr(readVal()).c_str());
+                            printf(" System Exclusive Event start: %s ", readStr(readVal()).c_str());
                         }
                         else if (nStatus == 0xF7)
                         {
-                            printf("\nSystem Exclusive Event end: %s\n", readStr(readVal()).c_str());
+                            printf(" System Exclusive Event end: %s ", readStr(readVal()).c_str());
                         }
                         else if (nStatus == 0xFF)
                         {
@@ -312,75 +331,78 @@ namespace wyaudio
                             Uint8 nType = ifs.get();
                             Uint8 nLen = readVal();
 
+                            printf(", ## %x %x", nType, nLen);
+
                             switch (nType)
                             {
                             case MetaSequence:
-                                printf("\nMetaSequence: %d %d", ifs.get(), ifs.get());
+                                printf(", MetaSequence: %x %x", ifs.get(), ifs.get());
                                 break;
                             case MetaText:
-                                printf("\nMetaText: %s", readStr(nLen).c_str());
+                                printf(", MetaText: %s", readStr(nLen).c_str());
                                 break;
                             case MetaCopyright:
-                                printf("\nMetaCopyright: %s", readStr(nLen).c_str());
+                                printf(", MetaCopyright: %s", readStr(nLen).c_str());
                                 break;
                             case MetaTrackName:
                                 vecTracks[nChunk].sName = readStr(nLen);
-                                printf("\nMetaTrackName: %s", vecTracks[nChunk].sName.c_str());
+                                printf(", MetaTrackName: %s", vecTracks[nChunk].sName.c_str());
                                 break;
                             case MetaInstrumentName:
                                 vecTracks[nChunk].sInstrument = readStr(nLen);
-                                printf("\nMetaInstrumentName: %s", vecTracks[nChunk].sInstrument.c_str());
+                                printf(", MetaInstrumentName: %s", vecTracks[nChunk].sInstrument.c_str());
                                 break;
                             case MetaLyric:
-                                printf("\nMetaLyric: %s", readStr(nLen).c_str());
+                                printf(", MetaLyric: %s", readStr(nLen).c_str());
                                 break;
                             case MetaMarker:
-                                printf("\nMetaMarker: %s", readStr(nLen).c_str());
+                                printf(", MetaMarker: %s", readStr(nLen).c_str());
                                 break;
                             case MetaCuePoint:
-                                printf("\nMetaCuePoint: %s", readStr(nLen).c_str());
+                                printf(", MetaCuePoint: %s", readStr(nLen).c_str());
                                 break;
                             case MetaProgramName:
-                                printf("\nMetaProgramName: %s", readStr(nLen).c_str());
+                                printf(", MetaProgramName: %s", readStr(nLen).c_str());
                                 break;
                             case MetaDeviceName:
-                                printf("\nMetaDeviceName: %s", readStr(nLen).c_str());
+                                printf(", MetaDeviceName: %s", readStr(nLen).c_str());
                                 break;
                             case MetaChannelPrefix:
-                                printf("\nMetaChannelPrefix: %d", ifs.get());
+                                printf(", MetaChannelPrefix: %x", ifs.get());
                                 break;
                             case MetaPort:
-                                printf("\nMetaPort: %d", ifs.get());
+                                printf(", MetaPort: %x", ifs.get());
                                 break;
                             case MetaEndOfTrack:
                                 bEndOfTrack = true;
+                                printf(", End");
                                 break;
                             case MetaTempo:
-                                // Initialise tempo, otherwise store it for mid-song tempo change
-                                if (nTempo == 0)
-                                {
-                                    nTempo |= ifs.get() << 16;
-                                    nTempo |= ifs.get() << 8;
-                                    nTempo |= ifs.get();
-                                }
-                                printf("\nMetaTempo: %d %d", nTempo, getBPM());
+                                nTempo |= ifs.get() << 16;
+                                nTempo |= ifs.get() << 8;
+                                nTempo |= ifs.get() << 0;
+                                printf(", MetaTempo: %x", nTempo);
                                 break;
                             case MetaSMPTEOffset:
-                                printf("\nMetaSMPTEOffset: %d %d %d %d %d", ifs.get(), ifs.get(), ifs.get(), ifs.get(), ifs.get());
+                                printf(", MetaSMPTEOffset: %x %x %x %x %x", ifs.get(), ifs.get(), ifs.get(), ifs.get(), ifs.get());
                                 break;
                             case MetaTimeSignature:
-                                printf("\nMetaTimeSignature: %d %d %d %d", ifs.get(), ifs.get(), ifs.get(), ifs.get());
+                                printf(", MetaTimeSignature: %x %x %x %x", ifs.get(), ifs.get(), ifs.get(), ifs.get());
                                 break;
                             case MetaKeySignature:
-                                printf("\nMetaKeySignature: %d %d", ifs.get(), ifs.get());
+                                printf(", MetaKeySignature: %x %x", ifs.get(), ifs.get());
                                 break;
                             case MetaSequencerSpecific:
-                                printf("\nMetaSequencerSpecific: %s", readStr(nLen).c_str());
+                                printf(", MetaSequencerSpecific: %s", readStr(nLen).c_str());
                                 break;
                             default:
-                                printf("\nUnrecognized meta: %d", nType);
+                                printf(", Unrecognized meta: %x", nType);
                                 break;
                             }
+                        }
+                        else
+                        {
+                            printf(", UNRECOGNISED: %x", nStatus);
                         }
                     }
                     else
