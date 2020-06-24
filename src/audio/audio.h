@@ -66,6 +66,9 @@ namespace wyaudio
         // - Expects a return value between -1 to 1.
         virtual double getAudioSample() = 0;
 
+        virtual void onPlay() {}
+        virtual void onPause() {}
+
     public:
         WY_Audio() {}
 
@@ -178,11 +181,15 @@ namespace wyaudio
                 init();
 
             SDL_PauseAudioDevice(deviceId, 0);
+
+            onPlay();
         }
 
         void pause()
         {
             SDL_PauseAudioDevice(deviceId, 1);
+
+            onPause();
         }
 
         // Used by audioCallback. Do not call or override this.
