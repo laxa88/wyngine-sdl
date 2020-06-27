@@ -171,14 +171,14 @@ namespace wyaudio
             if (dAmplitude <= 0.0)
                 bNoteFinished = true;
 
-            double dSound = (double)wyrandom(20000) / 10000.0 - 10000.0;
+            double dSound = (double)wyrandom(20000) / 10000.0 - 1.0;
 
             return dAmplitude * dSound * dVolume;
         }
 
         double speak2(const double dTime, Uint8 n)
         {
-            return (double)wyrandom(20000) / 10000.0 - 10000.0;
+            return (double)wyrandom(20000) / 10000.0 - 1.0;
         };
     };
 

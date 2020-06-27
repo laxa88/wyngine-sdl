@@ -112,11 +112,11 @@ public:
             case 3:
                 dSound = chan2.speak2(getDTime(), n.note.nKey);
                 break;
-            // case 4:
-            //     dSound = chan3.speak2(getDTime(), n.note.nKey);
-            //     break;
+            case 4:
+                dSound = chan3.speak2(getDTime(), n.note.nKey);
+                break;
             default:
-                dSound = chan0.speak2(getDTime(), n.note.nKey);
+                dSound = 0.0;
                 break;
             }
 
