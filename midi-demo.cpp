@@ -39,25 +39,36 @@ protected:
 public:
     GameAudio()
     {
-        // wyaudio::WY_MidiFile *midi1 = new wyaudio::WY_MidiFile("assets/overworld-smb-snip-0.mid");
-        // wyaudio::WY_MidiFile *midi2 = new wyaudio::WY_MidiFile("assets/overworld-smb-snip-1.mid");
-        // wyaudio::WY_MidiFile *midi3 = new wyaudio::WY_MidiFile("assets/overworld-smb-snip-01.mid");
-        // wyaudio::WY_MidiFile *midi3 = new wyaudio::WY_MidiFile("assets/overworld-smb-snip2.mid");
-        // wyaudio::WY_MidiFile *midi4 = new wyaudio::WY_MidiFile("assets/overworld-smb--06.mid");
-        // wyaudio::WY_MidiFile *midi4 = new wyaudio::WY_MidiFile("assets/overworld-smb-snip-0123.mid");
-        // wyaudio::WY_MidiFile *midi5 = new wyaudio::WY_MidiFile("assets/overworld-smb-snip-0123b.mid");
-        // wyaudio::WY_MidiFile *midi1 = new wyaudio::WY_MidiFile("assets/battle-theme-3.mid");
-        // wyaudio::WY_MidiFile *midi2 = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
-        // wyaudio::WY_MidiFile *midi3 = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
+        midi = NULL;
 
-        // midiFiles.push_back(midi1);
-        // midiFiles.push_back(midi1);
-        // midiFiles.push_back(midi2);
-        // midiFiles.push_back(midi3);
+        wyaudio::WY_MidiFile *midi3 = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
+        wyaudio::WY_MidiFile *midi1 = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
+        wyaudio::WY_MidiFile *midi2 = new wyaudio::WY_MidiFile("assets/overworld-zelda.mid");
 
-        midi = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
-        // midi = new wyaudio::WY_MidiFile("assets/overworld-zelda.mid");
-        // midi = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
+        midiFiles.push_back(midi3);
+        midiFiles.push_back(midi1);
+        midiFiles.push_back(midi2);
+    }
+
+    ~GameAudio()
+    {
+        midi = NULL;
+
+        for (auto &m : midiFiles)
+        {
+            delete m;
+        }
+        midiFiles.clear();
+
+        delete noteIndices;
+
+        SDL_DestroyMutex(muxNotes);
+    }
+
+    void playMidi(int index)
+    {
+        midi = midiFiles.at(index);
+
         trackLen = midi->vecTracks.size();
         noteIndices = new int[trackLen];
         completedTracks = new int[trackLen];
@@ -69,14 +80,6 @@ public:
         bLoop = true;
 
         dStartTime = SDL_GetTicks();
-    }
-
-    ~GameAudio()
-    {
-        delete midi;
-        delete noteIndices;
-
-        SDL_DestroyMutex(muxNotes);
     }
 
     void playNote(wyaudio::WY_MidiNote k, int channel)
@@ -116,7 +119,7 @@ public:
                 dSound = chan3.speak2(getDTime(), n.note.nKey);
                 break;
             default:
-                dSound = 0.0;
+                dSound = chan0.speak2(getDTime(), n.note.nKey);
                 break;
             }
 
@@ -169,6 +172,11 @@ public:
         {
             for (int i = 0; i < trackLen; i++)
             {
+                if (midi == NULL)
+                {
+                    break;
+                }
+
                 auto &track = midi->vecTracks.at(i);
                 auto &notes = track.vecNotes;
                 if (noteIndices[i] >= notes.size())
@@ -270,12 +278,16 @@ public:
 
         if (keyboard->isKeyPressed(SDLK_SPACE))
         {
-            if (audio->isPlaying())
+            audio->pause();
+        }
+
+        for (int k = 0; k < 3; k++)
+        {
+            short keyCode = (unsigned char)("123"[k]);
+
+            if (keyboard->isKeyPressed(keyCode))
             {
-                audio->pause();
-            }
-            else
-            {
+                audio->playMidi(k);
                 audio->play();
             }
         }
