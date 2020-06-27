@@ -41,13 +41,13 @@ public:
     {
         midi = NULL;
 
-        wyaudio::WY_MidiFile *midi3 = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
         wyaudio::WY_MidiFile *midi1 = new wyaudio::WY_MidiFile("assets/overworld-smb.mid");
         wyaudio::WY_MidiFile *midi2 = new wyaudio::WY_MidiFile("assets/overworld-zelda.mid");
+        wyaudio::WY_MidiFile *midi3 = new wyaudio::WY_MidiFile("assets/pallet-town.mid");
 
-        midiFiles.push_back(midi3);
         midiFiles.push_back(midi1);
         midiFiles.push_back(midi2);
+        midiFiles.push_back(midi3);
     }
 
     ~GameAudio()
