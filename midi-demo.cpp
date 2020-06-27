@@ -208,32 +208,6 @@ public:
                     reset(bLoop);
                 }
             }
-
-            // STOPPED HERE
-            /*
-                // init these outside update()
-                init noteCounter to track.length
-                init each element in noteCounter to 0
-                init completedTracks = 0
-
-                for event in track
-                    if noteCounter[event] >= event.length
-                        continue;
-
-                    if event[noteCounter].startTime >= dCurrTime
-                        playNote
-                        increase noteCounter[event]
-                        if noteCounter[event] >= event.length
-                            completedTracks += 1
-
-                if completedTracks == track.length
-                    if LOOP
-                        reset dStartTime
-                        reset noteCounter
-                        reset completedTracks
-                    else
-                        pause()
-            */
         }
     }
 };
