@@ -233,7 +233,6 @@ public:
 
         audio = new GameAudio();
         audio->init();
-        audio->play();
     }
 
     ~Game()
