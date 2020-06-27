@@ -3,8 +3,12 @@
 #include "oscillator.h"
 #include "envelope.h"
 
+// https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
+#define BASE_FREQ 8.18
+
 // https://pages.mtu.edu/~suits/notefreqs.html
-#define BASE_FREQ 16.35
+// #define BASE_FREQ 16.35
+
 #define MIN_OCT 0
 #define MAX_OCT 8
 
@@ -110,6 +114,10 @@ namespace wyaudio
         double dVolume;
         Envelope env;
         virtual double speak(const double dTime, Note n, bool &bNoteFinished) = 0;
+        virtual double speak2(const double dTime, Uint8 n)
+        {
+            return 0.0;
+        };
     };
 
     struct wave : public Instrument
@@ -136,6 +144,11 @@ namespace wyaudio
 
             return dAmplitude * dSound * dVolume;
         }
+
+        double speak2(const double dTime, Uint8 n)
+        {
+            return osc(dTime, scale(n), OSC_SINE);
+        };
     };
 
     struct noise : public Instrument
@@ -162,6 +175,11 @@ namespace wyaudio
 
             return dAmplitude * dSound * dVolume;
         }
+
+        double speak2(const double dTime, Uint8 n)
+        {
+            return (double)wyrandom(20000) / 10000.0 - 10000.0;
+        };
     };
 
     struct square : public Instrument
@@ -188,6 +206,11 @@ namespace wyaudio
 
             return dAmplitude * dSound * dVolume;
         }
+
+        double speak2(const double dTime, Uint8 n)
+        {
+            return osc(dTime, scale(n), OSC_SQUARE);
+        };
     };
 
     struct harmonica : public Instrument

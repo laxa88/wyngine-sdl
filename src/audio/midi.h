@@ -59,7 +59,6 @@ namespace wyaudio
 
         Uint8 nKey = 0;
         Uint8 nVelocity = 0;
-        Uint32 nWallTick = 0;
         Uint32 nDeltaTick = 0;
     };
 
@@ -226,9 +225,9 @@ namespace wyaudio
                     nStatusTimeDelta = readVal();
                     nStatus = ifs.get();
 
-                    printf("\ndTime: %x, ", nStatusTimeDelta);
-                    printf(", %x", nStatus);
-                    printf(", %x", nPreviousStatus);
+                    // printf("\ndTime: %x, ", nStatusTimeDelta);
+                    // printf(", %x", nStatus);
+                    // printf(", %x", nPreviousStatus);
 
                     // If running status, backtrack fstream by 1 byte
                     // so we can read full nStatus
@@ -246,7 +245,7 @@ namespace wyaudio
                         Uint8 nNoteVelocity = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::NoteOff, nNoteId, nNoteVelocity, nStatusTimeDelta});
 
-                        printf(", # %x %x", nNoteId, nNoteVelocity);
+                        // printf(", # %x %x", nNoteId, nNoteVelocity);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceNoteOn)
                     {
@@ -263,7 +262,7 @@ namespace wyaudio
                             vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::NoteOn, nNoteId, nNoteVelocity, nStatusTimeDelta});
                         }
 
-                        printf(", # %x %x", nNoteId, nNoteVelocity);
+                        // printf(", # %x %x", nNoteId, nNoteVelocity);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceAfterTouch)
                     {
@@ -273,7 +272,7 @@ namespace wyaudio
                         Uint8 nNotePressure = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
 
-                        printf(", # %x %x", nNoteId, nNotePressure);
+                        // printf(", # %x %x", nNoteId, nNotePressure);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceControlChange)
                     {
@@ -283,7 +282,7 @@ namespace wyaudio
                         Uint8 nNoteValue = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
 
-                        printf(", # %x %x", nNoteController, nNoteValue);
+                        // printf(", # %x %x", nNoteController, nNoteValue);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceProgramChange)
                     {
@@ -292,7 +291,7 @@ namespace wyaudio
                         Uint8 nProgram = ifs.get(); // voice, instrument, etc.
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
 
-                        printf(", # %x", nProgram);
+                        // printf(", # %x", nProgram);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoiceChannelPressure)
                     {
@@ -301,7 +300,7 @@ namespace wyaudio
                         Uint8 nPressure = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
 
-                        printf(", # %x", nPressure);
+                        // printf(", # %x", nPressure);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::VoicePitchBend)
                     {
@@ -311,7 +310,7 @@ namespace wyaudio
                         Uint8 nMsb = ifs.get();
                         vecTracks[nChunk].vecEvents.push_back({WY_MidiEvent::Type::Other});
 
-                        printf(", # %x %x", nLsb, nMsb);
+                        // printf(", # %x %x", nLsb, nMsb);
                     }
                     else if ((nStatus & 0xF0) == WY_MidiEventName::SystemExclusive)
                     {
@@ -319,11 +318,11 @@ namespace wyaudio
 
                         if (nStatus == 0xF0)
                         {
-                            printf(" System Exclusive Event start: %s ", readStr(readVal()).c_str());
+                            // printf(" System Exclusive Event start: %s ", readStr(readVal()).c_str());
                         }
                         else if (nStatus == 0xF7)
                         {
-                            printf(" System Exclusive Event end: %s ", readStr(readVal()).c_str());
+                            // printf(" System Exclusive Event end: %s ", readStr(readVal()).c_str());
                         }
                         else if (nStatus == 0xFF)
                         {
@@ -331,86 +330,87 @@ namespace wyaudio
                             Uint8 nType = ifs.get();
                             Uint8 nLen = readVal();
 
-                            printf(", ## %x %x", nType, nLen);
+                            // printf(", ## %x %x", nType, nLen);
 
                             switch (nType)
                             {
                             case MetaSequence:
-                                printf(", MetaSequence: %x %x", ifs.get(), ifs.get());
+                                // printf(", MetaSequence: %x %x", ifs.get(), ifs.get());
                                 break;
                             case MetaText:
-                                printf(", MetaText: %s", readStr(nLen).c_str());
+                                // printf(", MetaText: %s", readStr(nLen).c_str());
                                 break;
                             case MetaCopyright:
-                                printf(", MetaCopyright: %s", readStr(nLen).c_str());
+                                // printf(", MetaCopyright: %s", readStr(nLen).c_str());
                                 break;
                             case MetaTrackName:
                                 vecTracks[nChunk].sName = readStr(nLen);
-                                printf(", MetaTrackName: %s", vecTracks[nChunk].sName.c_str());
+                                // printf(", MetaTrackName: %s", vecTracks[nChunk].sName.c_str());
                                 break;
                             case MetaInstrumentName:
                                 vecTracks[nChunk].sInstrument = readStr(nLen);
-                                printf(", MetaInstrumentName: %s", vecTracks[nChunk].sInstrument.c_str());
+                                // printf(", MetaInstrumentName: %s", vecTracks[nChunk].sInstrument.c_str());
                                 break;
                             case MetaLyric:
-                                printf(", MetaLyric: %s", readStr(nLen).c_str());
+                                // printf(", MetaLyric: %s", readStr(nLen).c_str());
                                 break;
                             case MetaMarker:
-                                printf(", MetaMarker: %s", readStr(nLen).c_str());
+                                // printf(", MetaMarker: %s", readStr(nLen).c_str());
                                 break;
                             case MetaCuePoint:
-                                printf(", MetaCuePoint: %s", readStr(nLen).c_str());
+                                // printf(", MetaCuePoint: %s", readStr(nLen).c_str());
                                 break;
                             case MetaProgramName:
-                                printf(", MetaProgramName: %s", readStr(nLen).c_str());
+                                // printf(", MetaProgramName: %s", readStr(nLen).c_str());
                                 break;
                             case MetaDeviceName:
-                                printf(", MetaDeviceName: %s", readStr(nLen).c_str());
+                                // printf(", MetaDeviceName: %s", readStr(nLen).c_str());
                                 break;
                             case MetaChannelPrefix:
-                                printf(", MetaChannelPrefix: %x", ifs.get());
+                                // printf(", MetaChannelPrefix: %x", ifs.get());
                                 break;
                             case MetaPort:
-                                printf(", MetaPort: %x", ifs.get());
+                                // printf(", MetaPort: %x", ifs.get());
                                 break;
                             case MetaEndOfTrack:
                                 bEndOfTrack = true;
-                                printf(", End");
+                                // printf(", End");
                                 break;
                             case MetaTempo:
                                 nTempo |= ifs.get() << 16;
                                 nTempo |= ifs.get() << 8;
                                 nTempo |= ifs.get() << 0;
-                                printf(", MetaTempo: %x", nTempo);
+                                // printf(", MetaTempo: %x", nTempo);
                                 break;
                             case MetaSMPTEOffset:
-                                printf(", MetaSMPTEOffset: %x %x %x %x %x", ifs.get(), ifs.get(), ifs.get(), ifs.get(), ifs.get());
+                                // printf(", MetaSMPTEOffset: %x %x %x %x %x", ifs.get(), ifs.get(), ifs.get(), ifs.get(), ifs.get());
                                 break;
                             case MetaTimeSignature:
-                                printf(", MetaTimeSignature: %x %x %x %x", ifs.get(), ifs.get(), ifs.get(), ifs.get());
+                                // printf(", MetaTimeSignature: %x %x %x %x", ifs.get(), ifs.get(), ifs.get(), ifs.get());
                                 break;
                             case MetaKeySignature:
-                                printf(", MetaKeySignature: %x %x", ifs.get(), ifs.get());
+                                // printf(", MetaKeySignature: %x %x", ifs.get(), ifs.get());
                                 break;
                             case MetaSequencerSpecific:
-                                printf(", MetaSequencerSpecific: %s", readStr(nLen).c_str());
+                                // printf(", MetaSequencerSpecific: %s", readStr(nLen).c_str());
                                 break;
                             default:
-                                printf(", Unrecognized meta: %x", nType);
+                                // printf(", Unrecognized meta: %x", nType);
                                 break;
                             }
                         }
                         else
                         {
-                            printf(", UNRECOGNISED: %x", nStatus);
+                            // printf(", UNRECOGNISED: %x", nStatus);
                         }
                     }
                     else
                     {
-                        printf("\nUnrecognized status byte: %d\n", nStatus);
+                        // printf("\nUnrecognized status byte: %d\n", nStatus);
                     }
                 }
             }
+            printf("\ntempo: %d", nTempo);
 
             for (auto &track : vecTracks)
             {
@@ -419,7 +419,9 @@ namespace wyaudio
 
                 for (auto &event : track.vecEvents)
                 {
-                    nWallTime += event.nDeltaTick;
+                    // nWallTime += event.nDeltaTick;
+                    nWallTime += 60000.0 / ((double)getBPM() * (double)nTickDiv) * (double)event.nDeltaTick;
+                    // printf("\nnote: %d %d", nWallTime, event.nDeltaTick);
 
                     if (event.event == WY_MidiEvent::Type::NoteOn)
                     {
@@ -433,6 +435,7 @@ namespace wyaudio
                         if (note != listNotesBeingProcessed.end())
                         {
                             note->nDuration = nWallTime - note->nStartTime;
+                            // printf("\nnote start/dur: %d %d", note->nStartTime, note->nDuration);
                             track.vecNotes.push_back(*note);
                             listNotesBeingProcessed.erase(note);
                         }
@@ -453,13 +456,36 @@ namespace wyaudio
         }
     };
 
+    typedef bool (*lambda)(Note const &item);
+    template <class T>
+    void safe_remove(T &v, lambda f)
+    {
+        auto n = v.begin();
+        while (n != v.end())
+            if (!f(*n))
+                n = v.erase(n);
+            else
+                ++n;
+    }
+
     class WY_MidiPlayer : public WY_Audio
     {
     protected:
         std::vector<WY_MidiFile *> midiFiles;
 
+        std::vector<Note> vecNotes;
+        SDL_mutex *muxNotes;
+
+        wyaudio::square chan0;
+        wyaudio::square chan1;
+        wyaudio::wave chan2;
+        wyaudio::noise chan3;
+
     public:
-        WY_MidiPlayer() {}
+        WY_MidiPlayer()
+        {
+            muxNotes = SDL_CreateMutex();
+        }
 
         ~WY_MidiPlayer()
         {
@@ -468,11 +494,114 @@ namespace wyaudio
                 delete midiFiles[i];
             }
             midiFiles.clear();
+
+            vecNotes.clear();
+            delete &vecNotes;
+
+            SDL_DestroyMutex(muxNotes);
+        }
+
+        void playNote(wyaudio::MusicNote k, bool bNoteOn)
+        {
+            if (SDL_LockMutex(muxNotes) != 0)
+                return;
+
+            auto noteFound = std::find_if(vecNotes.begin(), vecNotes.end(), [&k](wyaudio::Note const &item) { return item.id == k; });
+
+            if (noteFound == vecNotes.end())
+            {
+                // Note not found in vector
+
+                if (bNoteOn)
+                {
+                    // Key has been pressed so create a new note
+                    wyaudio::Note n;
+                    n.id = k;
+                    n.octave = 4;
+                    n.on = dTime;
+                    n.channel = 0;
+                    n.active = true;
+
+                    // Add note to vector
+                    vecNotes.emplace_back(n);
+                }
+                else
+                {
+                    // Note not in vector, but key has been released...
+                    // ...nothing to do
+                }
+            }
+            else
+            {
+                // Note exists in vector
+                if (bNoteOn)
+                {
+                    // Key is still held, so do nothing
+                    if (noteFound->off > noteFound->on)
+                    {
+                        // Key has been pressed again during release phase
+                        noteFound->on = dTime;
+                        noteFound->octave = 4;
+                        noteFound->active = true;
+                    }
+                }
+                else
+                {
+                    // Key has been released, so switch off
+                    if (noteFound->off < noteFound->on)
+                    {
+                        noteFound->off = dTime;
+                    }
+                }
+            }
+
+            SDL_UnlockMutex(muxNotes);
         }
 
         double getAudioSample()
         {
-            return 0.0;
+            if (SDL_LockMutex(muxNotes) != 0)
+                return 0.0;
+
+            double dMixedOutput = 0.0;
+
+            for (auto &n : vecNotes)
+            {
+                bool bNoteFinished = false;
+                double dSound = 0.0;
+
+                switch (n.channel)
+                {
+                case 0:
+                    dSound = chan0.speak(dTime, n, bNoteFinished);
+                    break;
+                case 1:
+                    dSound = chan1.speak(dTime, n, bNoteFinished);
+                    break;
+                case 2:
+                    dSound = chan2.speak(dTime, n, bNoteFinished);
+                    break;
+                case 3:
+                    dSound = chan3.speak(dTime, n, bNoteFinished);
+                    break;
+                default:
+                    dSound = 0.0;
+                    break;
+                }
+
+                dMixedOutput += dSound;
+
+                if (bNoteFinished && n.off >= n.on)
+                {
+                    n.active = false;
+                }
+            }
+
+            safe_remove<std::vector<wyaudio::Note>>(vecNotes, [](wyaudio::Note const &item) { return item.active; });
+
+            SDL_UnlockMutex(muxNotes);
+
+            return dMixedOutput;
         }
     };
 } // namespace wyaudio
