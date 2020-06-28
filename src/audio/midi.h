@@ -175,9 +175,6 @@ namespace wyaudio
             ifs.read((char *)&n32, sizeof(Uint32));
             Uint32 nHeaderId = swap32(n32); // 4-byte char: "Mthd"
             printf("\nnHeaderId: %x", nHeaderId);
-            // printf("\nnHeaderId: %x %x %x %x\n", ((nHeaderId & 0xFF000000) >> 24), ((nHeaderId & 0xFF0000) >> 16), ((nHeaderId & 0xFF00) >> 8), ((nHeaderId & 0xFF))); // matches hex editor values
-            // printf("\nnHeaderId: %c%c%c%c\n", ((nHeaderId & 0xFF000000) >> 24), ((nHeaderId & 0xFF0000) >> 16), ((nHeaderId & 0xFF00) >> 8), ((nHeaderId & 0xFF))); // outputs M T h d
-            // printf("\nnHeaderId: %s\n", readStr(sizeof(Uint32)).c_str()); // outputs Mthd
 
             // Assume len is 6 bytes, but not necessarily in the future
             ifs.read((char *)&n32, sizeof(Uint32));
@@ -224,10 +221,6 @@ namespace wyaudio
 
                     nStatusTimeDelta = readVal();
                     nStatus = ifs.get();
-
-                    // printf("\ndTime: %x, ", nStatusTimeDelta);
-                    // printf(", %x", nStatus);
-                    // printf(", %x", nPreviousStatus);
 
                     // If running status, backtrack fstream by 1 byte
                     // so we can read full nStatus
@@ -410,7 +403,6 @@ namespace wyaudio
                     }
                 }
             }
-            printf("\ntempo: %d", nTempo);
 
             for (auto &track : vecTracks)
             {
@@ -421,7 +413,6 @@ namespace wyaudio
                 {
                     // nWallTime += event.nDeltaTick;
                     nWallTime += 60000.0 / ((double)getBPM() * (double)nTickDiv) * (double)event.nDeltaTick;
-                    // printf("\nnote: %d %d", nWallTime, event.nDeltaTick);
 
                     if (event.event == WY_MidiEvent::Type::NoteOn)
                     {
@@ -435,7 +426,6 @@ namespace wyaudio
                         if (note != listNotesBeingProcessed.end())
                         {
                             note->nDuration = nWallTime - note->nStartTime;
-                            // printf("\nnote start/dur: %d %d", note->nStartTime, note->nDuration);
                             track.vecNotes.push_back(*note);
                             listNotesBeingProcessed.erase(note);
                         }
