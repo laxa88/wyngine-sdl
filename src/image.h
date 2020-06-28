@@ -20,14 +20,14 @@ WY_Image *loadPNG(SDL_Renderer *renderer, std::string path)
 
     if (loadedSurface == NULL)
     {
-        printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
+        SDL_Log("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
     }
     else
     {
         SDL_Surface *formattedSurface = SDL_ConvertSurfaceFormat(loadedSurface, SDL_PIXELFORMAT_RGBA8888, 0);
         if (formattedSurface == NULL)
         {
-            printf("Unable to convert loaded surface to display format! %s\n", SDL_GetError());
+            SDL_Log("Unable to convert loaded surface to display format! %s\n", SDL_GetError());
         }
         else
         {
@@ -36,7 +36,7 @@ WY_Image *loadPNG(SDL_Renderer *renderer, std::string path)
             newTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, formattedSurface->w, formattedSurface->h);
             if (newTexture == NULL)
             {
-                printf("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+                SDL_Log("Unable to create texture from %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
             }
             else
             {

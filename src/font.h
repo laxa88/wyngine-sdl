@@ -111,7 +111,7 @@ public:
     {
         if (mTexture == nullptr)
         {
-            printf("Font texture missing!\n");
+            SDL_Log("Font texture missing!\n");
             return;
         }
 
