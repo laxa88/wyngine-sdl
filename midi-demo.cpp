@@ -17,6 +17,7 @@ class GameAudio : public wyaudio::WY_MidiPlayer
     Uint32 dCurrTime;
 
     wyaudio::WY_MidiFile *midi;
+    int currMidiIndex = 0;
     int trackLen;
     int *noteIndices;
     int *completedTracks;
@@ -28,12 +29,10 @@ protected:
     {
         dTime = 0.0;
         dStartTime = SDL_GetTicks();
-        printf("\nplay %d", dStartTime);
     }
 
     void onPause()
     {
-        printf("\npause %d", dCurrTime);
     }
 
 public:
@@ -65,8 +64,24 @@ public:
         SDL_DestroyMutex(muxNotes);
     }
 
+    std::string getSongName()
+    {
+        switch (currMidiIndex)
+        {
+        case 0:
+            return "Overworld (Super Mario Bros.)";
+        case 1:
+            return "Overworld (Legend of Zelda)";
+        case 2:
+            return "Pallet Town (Pokemon gen 1)";
+        default:
+            return "???";
+        }
+    }
+
     void playMidi(int index)
     {
+        currMidiIndex = index;
         midi = midiFiles.at(index);
 
         trackLen = midi->vecTracks.size();
@@ -133,7 +148,6 @@ public:
 
     void reset(bool play = false)
     {
-        printf("\n RESET \n");
 
         // reset start time to current time so we can loop
         dStartTime = SDL_GetTicks();
@@ -147,6 +161,11 @@ public:
             {
                 completedTracks[i] = 0;
             }
+        }
+
+        if (!play)
+        {
+            pause();
         }
     }
 
@@ -166,7 +185,6 @@ public:
         }
 
         dCurrTime = SDL_GetTicks() - dStartTime;
-        printf("\nelapsed: %d", dCurrTime);
 
         if (isPlaying())
         {
@@ -187,7 +205,6 @@ public:
                 }
 
                 auto &note = notes.at(noteIndices[i]);
-                // printf(", play: %d/%d/%d/%d/%d", notes.size(), i, note.nStartTime, note.nDuration, note.nKey);
 
                 if (dCurrTime >= note.nStartTime)
                 {
@@ -251,7 +268,7 @@ public:
 
         if (keyboard->isKeyPressed(SDLK_SPACE))
         {
-            audio->pause();
+            audio->reset();
         }
 
         for (int k = 0; k < 3; k++)
@@ -272,13 +289,8 @@ public:
         std::string t2 = std::to_string(timer->getTimeSinceStart());
         std::string t3 = "\nAudio dTime : ";
         std::string t4 = std::to_string(audio->getDTime());
-        std::string t5 = "\nAmplitude (volume) : ";
-        std::string t6 = std::to_string(audio->getAmplitude());
-
-        // std::string s1 = "\n\nSong                     : ";
-        // std::string s2 = wyaudio::getInstrumentName(audio->instrument);
-        // std::string s3 = "\nPlaying                  : ";
-        // std::string s4 = std::to_string(audio->vecNotes.size());
+        std::string t5 = "\nFile : ";
+        std::string t6 = audio->getSongName();
 
         mFont->print(mRenderer, t1 + t2 + t3 + t4 + t5 + t6);
     }
