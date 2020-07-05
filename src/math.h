@@ -15,7 +15,7 @@ double wyrandom_d(int mod)
 #ifdef __EMSCRIPTEN__
     return (double)(emscripten_random() * mod);
 #else
-    return (double)(rand() % (mod * 1000000)) / 1000.0;
+    return (double)(rand() % (mod * 100)) / 100.0;
 #endif
 }
 
