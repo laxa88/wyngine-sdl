@@ -127,7 +127,7 @@ public:
     {
         for (auto &bunny : vecBunnies)
         {
-            srfBunnyTiles.Draw({bunny.dx, bunny.dy, 35, 36});
+            srfBunnyTiles.Draw({(int)bunny.dx, (int)bunny.dy, 35, 36});
 
             // srfBunnyTiles.SetTilesetIndex(bunny.nSpriteIndex);
             // srfBunnyTiles.Draw(bunny.dx, bunny.dy);
