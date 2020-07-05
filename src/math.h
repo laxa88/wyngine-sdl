@@ -9,7 +9,17 @@
 #define PI M_PI
 #define TWO_PI (2.0 * M_PI)
 
-// Returns a number from 0 to mod.
+// Returns a double (0 <= x < mod)
+double wyrandom_d(int mod)
+{
+#ifdef __EMSCRIPTEN__
+    return (double)(emscripten_random() * mod);
+#else
+    return (double)(rand() % (mod * 1000000)) / 1000.0;
+#endif
+}
+
+// Returns an integer (0 <= x < mod)
 template <class T = Uint16>
 T wyrandom(int mod)
 {

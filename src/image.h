@@ -6,6 +6,19 @@
 #include <cstring>
 #include <string>
 
+struct WY_Sprite
+{
+    SDL_Renderer *renderer;
+    SDL_Texture *texture;
+    SDL_Rect origin;
+
+    void Draw(SDL_Rect dest)
+    {
+        // SDL_RenderCopyF(renderer, texture, &origin, &dest);
+        SDL_RenderCopy(renderer, texture, &origin, &dest);
+    }
+};
+
 struct WY_Image
 {
     SDL_Texture *texture;
