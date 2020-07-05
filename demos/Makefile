@@ -10,7 +10,7 @@
 
 # Recommended:
 # - Do not use `--closure 1` when using <fstream>, it will throw method charCodeAt() not found
-# emcc midi-demo.cpp -O3 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=["png"] --preload-file assets -o ..\bin-js/webgame.html
+# emcc bunnymark.cpp -O3 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS=["png"] --preload-file ../assets -o ../bin-js/webgame.html
 
 all : \
 	bunnymark
