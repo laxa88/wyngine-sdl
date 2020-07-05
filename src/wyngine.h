@@ -35,21 +35,21 @@ protected:
     {
         if (SDL_Init(SDL_INIT_VIDEO) < 0)
         {
-            printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+            SDL_Log("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
             return false;
         }
 
         int imgFlags = IMG_INIT_PNG;
         if (!(IMG_Init(imgFlags) & imgFlags))
         {
-            printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+            SDL_Log("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
             return false;
         }
 
         mWindow = SDL_CreateWindow(windowTitle, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mGameW * mGamePS, mGameH * mGamePS, SDL_WINDOW_SHOWN);
         if (mWindow == NULL)
         {
-            printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+            SDL_Log("Window could not be created! SDL_Error: %s\n", SDL_GetError());
             return false;
         }
 
