@@ -2,10 +2,10 @@
 #include <algorithm>
 #include <SDL2/SDL.h>
 
-#include "src/wyngine.h"
-#include "src/font.h"
-#include "src/audio/audio.h"
-#include "src/audio/instrument.h"
+#include "../src/wyngine.h"
+#include "../src/font.h"
+#include "../src/audio/audio.h"
+#include "../src/audio/instrument.h"
 
 typedef bool (*lambda)(wyaudio::Note const &item);
 template <class T>

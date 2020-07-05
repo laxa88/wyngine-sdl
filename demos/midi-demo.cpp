@@ -1,8 +1,8 @@
 #include <SDL2/SDL.h>
 
-#include "src/wyngine.h"
-#include "src/font.h"
-#include "src/audio/midi.h"
+#include "../src/wyngine.h"
+#include "../src/font.h"
+#include "../src/audio/midi.h"
 
 struct PlayNote
 {

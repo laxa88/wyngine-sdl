@@ -1,8 +1,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include "src/lib/midifile/MidiFile.h"
-#include "src/lib/midifile/Options.h"
+#include "../src/lib/midifile/MidiFile.h"
+#include "../src/lib/midifile/Options.h"
 
 using namespace std;
 using namespace smf;

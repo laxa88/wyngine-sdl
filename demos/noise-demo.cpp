@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
-#include "src/wyngine.h"
+
+#include "../src/wyngine.h"
 
 class Game : public Wyngine
 {
